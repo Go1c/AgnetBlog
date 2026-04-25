@@ -21,7 +21,7 @@ https://blog.lumio.games/admin
 - GitHub OAuth 后台登录。
 - 后台内容管理、同步任务、目录规则、AI 令牌和配置说明页。
 - GitHub 笔记仓库同步。
-- PostgreSQL 保存内容索引、同步任务、AI 令牌 hash 和审计日志。
+- PostgreSQL 保存同步后的标题、正文、标签、可见性、同步任务、AI 令牌 hash 和审计日志。
 - Agent API，让外部 Agent 用受控 token 读取内容、触发同步或写回元数据。
 
 ## 快速上线顺序
@@ -37,6 +37,8 @@ https://blog.lumio.games/admin
 7. 重新部署 Web 服务。
 8. 打开 `/admin`，用 GitHub 登录。
 9. 进入 `/admin/setup`，按页面检查配置。
+10. 进入 `/admin/sync-jobs` 或调用同步接口跑一次全量同步。
+11. 打开 `/blog`，确认看到的是你笔记仓库里 `content/blog` 的公开文章。
 
 ## Zeabur 构建命令
 
@@ -56,6 +58,7 @@ npx prisma db push
 ```
 
 这个命令会创建 `ContentItem`、`AiToken`、`AuditLog`、`SyncJob` 等表。
+以后代码更新新增了数据库字段，也要再跑一次这个命令。
 
 ## 中文配置速查：必须配置哪些环境变量
 
@@ -198,6 +201,9 @@ Just the push event
 
 配置后，笔记仓库有 push 时，服务器会创建同步任务并尝试同步最新内容。
 
+第一次部署完成后，即使 webhook 已经配置，也建议先手动跑一次全量同步。
+否则数据库里还没有你的笔记，`/blog` 会显示为空。
+
 ## 笔记仓库内容怎么放
 
 当前同步设计默认读取 Markdown / MDX 内容。建议笔记仓库使用类似结构：
@@ -239,6 +245,17 @@ tags:
 | `published` | `true` / `false` | 是否发布。 |
 | `tags` | 字符串数组 | 标签。 |
 | `summary` | 字符串 | 列表和搜索说明。 |
+
+公开博客显示规则：
+
+- 文件必须在笔记仓库的 `content/blog/` 下面。
+- `contentType` 必须是 `blog`，或通过目录规则默认为 `blog`。
+- `visibility` 必须是 `public` 才会出现在 `/blog` 列表。
+- `published` 必须不是 `false`。
+- `unlisted` 不会出现在列表里，但知道链接的人可以直接打开。
+- `private` 前台不能打开，只能在后台或有权限的 Agent API 里读取。
+
+同步成功后，公开博客从 PostgreSQL 读取你的 GitHub 笔记，不再读取这个程序仓库里的默认示例。
 
 ## 后台怎么用
 
@@ -380,6 +397,18 @@ AI_TOKEN_PEPPER=<随机长字符串>
 - `GITHUB_WEBHOOK_SECRET`
 
 `GITHUB_WRITE_TOKEN` 必须对笔记仓库有 `Contents: Read and write` 权限。
+
+### `/blog` 还是看不到我的笔记
+
+按顺序检查：
+
+1. 线上重新部署后，已经在 Zeabur Web 服务 Shell 运行 `npx prisma db push`。
+2. 已经进入后台触发过一次全量同步，或笔记仓库 push 后 webhook 成功触发。
+3. `/admin/content` 里能看到你的笔记记录。
+4. 文章在笔记仓库的 `content/blog/` 目录下。
+5. frontmatter 里是 `contentType: blog`、`visibility: public`、`published: true`。
+
+如果 `/admin/content` 能看到内容但 `/blog` 没有，通常是文章仍是 `private`、`unlisted` 或 `published: false`。
 
 ## 重要页面和接口
 

@@ -1074,6 +1074,8 @@ export const ContentItemScalarFieldEnum = {
   slug: 'slug',
   title: 'title',
   description: 'description',
+  body: 'body',
+  tags: 'tags',
   sourcePath: 'sourcePath',
   sourceHash: 'sourceHash',
   visibility: 'visibility',

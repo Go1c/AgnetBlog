@@ -126,6 +126,7 @@ export default function AdminSetupPage() {
         </code>
         <p className="mt-3 text-sm leading-6 text-stone-700">
           这个命令会创建 ContentItem、AiToken、AuditLog、SyncJob 等数据库表。
+          以后代码更新新增了字段，也要再跑一次这个命令。
         </p>
       </section>
 
@@ -134,6 +135,24 @@ export default function AdminSetupPage() {
         title="GitHub 同步变量"
         variables={syncVariables}
       />
+
+      <section className="rounded-lg border border-stone-900/10 bg-white p-6 shadow-sm">
+        <h3 className="text-lg font-bold text-stone-950">为什么前台还是看不到我的笔记</h3>
+        <div className="mt-3 space-y-2 text-sm leading-6 text-stone-700">
+          <p>
+            公开博客现在读取 PostgreSQL 里同步后的内容。环境变量只负责连接 GitHub，
+            不会自动把历史文章立刻塞进数据库。
+          </p>
+          <p>
+            第一次部署后请先运行 npx prisma db push，然后进入后台触发一次全量同步。
+            同步成功后，/blog 才会显示笔记仓库 content/blog 目录下的公开文章。
+          </p>
+          <p>
+            文章必须是 contentType: blog、visibility: public，并且 published 不能是 false。
+            unlisted 可以直接打开链接，但不会出现在列表；private 前台不会显示。
+          </p>
+        </div>
+      </section>
 
       <ConfigTable
         description="这些变量不是打开后台首页的最低要求，但建议生产环境也配置好。"

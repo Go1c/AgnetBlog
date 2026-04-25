@@ -60,7 +60,7 @@ npx prisma db push
 3. 进入 Web 服务 Shell，运行 `npx prisma db push`。
 4. 部署时运行 `npm run db:generate` 再运行 `npm run build`。
 
-数据库保存派生索引、同步任务、AI 令牌 hash 和审计日志。Markdown frontmatter 仍是发布元数据的源头。
+数据库保存同步后的标题、正文、标签、可见性、同步任务、AI 令牌 hash 和审计日志。Markdown frontmatter 仍是发布元数据的源头。
 
 ## GitHub OAuth
 
@@ -120,6 +120,15 @@ GET /api/admin/health
 后台健康检查需要有效管理员登录。
 
 ## 手动同步
+
+第一次部署或更换笔记仓库后，先在 Zeabur Web 服务 Shell 运行：
+
+```bash
+npx prisma db push
+```
+
+然后触发一次全量同步。公开 `/blog` 页面读取 PostgreSQL 里的同步结果；
+只配置 GitHub 环境变量不会自动显示历史文章。
 
 管理员可以调用：
 

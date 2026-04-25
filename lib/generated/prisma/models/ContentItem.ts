@@ -30,6 +30,7 @@ export type ContentItemMinAggregateOutputType = {
   slug: string | null
   title: string | null
   description: string | null
+  body: string | null
   sourcePath: string | null
   sourceHash: string | null
   visibility: $Enums.Visibility | null
@@ -46,6 +47,7 @@ export type ContentItemMaxAggregateOutputType = {
   slug: string | null
   title: string | null
   description: string | null
+  body: string | null
   sourcePath: string | null
   sourceHash: string | null
   visibility: $Enums.Visibility | null
@@ -62,6 +64,8 @@ export type ContentItemCountAggregateOutputType = {
   slug: number
   title: number
   description: number
+  body: number
+  tags: number
   sourcePath: number
   sourceHash: number
   visibility: number
@@ -80,6 +84,7 @@ export type ContentItemMinAggregateInputType = {
   slug?: true
   title?: true
   description?: true
+  body?: true
   sourcePath?: true
   sourceHash?: true
   visibility?: true
@@ -96,6 +101,7 @@ export type ContentItemMaxAggregateInputType = {
   slug?: true
   title?: true
   description?: true
+  body?: true
   sourcePath?: true
   sourceHash?: true
   visibility?: true
@@ -112,6 +118,8 @@ export type ContentItemCountAggregateInputType = {
   slug?: true
   title?: true
   description?: true
+  body?: true
+  tags?: true
   sourcePath?: true
   sourceHash?: true
   visibility?: true
@@ -201,6 +209,8 @@ export type ContentItemGroupByOutputType = {
   slug: string
   title: string
   description: string | null
+  body: string | null
+  tags: string[]
   sourcePath: string
   sourceHash: string | null
   visibility: $Enums.Visibility
@@ -238,6 +248,8 @@ export type ContentItemWhereInput = {
   slug?: Prisma.StringFilter<"ContentItem"> | string
   title?: Prisma.StringFilter<"ContentItem"> | string
   description?: Prisma.StringNullableFilter<"ContentItem"> | string | null
+  body?: Prisma.StringNullableFilter<"ContentItem"> | string | null
+  tags?: Prisma.StringNullableListFilter<"ContentItem">
   sourcePath?: Prisma.StringFilter<"ContentItem"> | string
   sourceHash?: Prisma.StringNullableFilter<"ContentItem"> | string | null
   visibility?: Prisma.EnumVisibilityFilter<"ContentItem"> | $Enums.Visibility
@@ -256,6 +268,8 @@ export type ContentItemOrderByWithRelationInput = {
   slug?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  body?: Prisma.SortOrderInput | Prisma.SortOrder
+  tags?: Prisma.SortOrder
   sourcePath?: Prisma.SortOrder
   sourceHash?: Prisma.SortOrderInput | Prisma.SortOrder
   visibility?: Prisma.SortOrder
@@ -279,6 +293,8 @@ export type ContentItemWhereUniqueInput = Prisma.AtLeast<{
   slug?: Prisma.StringFilter<"ContentItem"> | string
   title?: Prisma.StringFilter<"ContentItem"> | string
   description?: Prisma.StringNullableFilter<"ContentItem"> | string | null
+  body?: Prisma.StringNullableFilter<"ContentItem"> | string | null
+  tags?: Prisma.StringNullableListFilter<"ContentItem">
   sourceHash?: Prisma.StringNullableFilter<"ContentItem"> | string | null
   visibility?: Prisma.EnumVisibilityFilter<"ContentItem"> | $Enums.Visibility
   published?: Prisma.BoolFilter<"ContentItem"> | boolean
@@ -296,6 +312,8 @@ export type ContentItemOrderByWithAggregationInput = {
   slug?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  body?: Prisma.SortOrderInput | Prisma.SortOrder
+  tags?: Prisma.SortOrder
   sourcePath?: Prisma.SortOrder
   sourceHash?: Prisma.SortOrderInput | Prisma.SortOrder
   visibility?: Prisma.SortOrder
@@ -318,6 +336,8 @@ export type ContentItemScalarWhereWithAggregatesInput = {
   slug?: Prisma.StringWithAggregatesFilter<"ContentItem"> | string
   title?: Prisma.StringWithAggregatesFilter<"ContentItem"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"ContentItem"> | string | null
+  body?: Prisma.StringNullableWithAggregatesFilter<"ContentItem"> | string | null
+  tags?: Prisma.StringNullableListFilter<"ContentItem">
   sourcePath?: Prisma.StringWithAggregatesFilter<"ContentItem"> | string
   sourceHash?: Prisma.StringNullableWithAggregatesFilter<"ContentItem"> | string | null
   visibility?: Prisma.EnumVisibilityWithAggregatesFilter<"ContentItem"> | $Enums.Visibility
@@ -334,6 +354,8 @@ export type ContentItemCreateInput = {
   slug: string
   title: string
   description?: string | null
+  body?: string | null
+  tags?: Prisma.ContentItemCreatetagsInput | string[]
   sourcePath: string
   sourceHash?: string | null
   visibility?: $Enums.Visibility
@@ -352,6 +374,8 @@ export type ContentItemUncheckedCreateInput = {
   slug: string
   title: string
   description?: string | null
+  body?: string | null
+  tags?: Prisma.ContentItemCreatetagsInput | string[]
   sourcePath: string
   sourceHash?: string | null
   visibility?: $Enums.Visibility
@@ -370,6 +394,8 @@ export type ContentItemUpdateInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ContentItemUpdatetagsInput | string[]
   sourcePath?: Prisma.StringFieldUpdateOperationsInput | string
   sourceHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityFieldUpdateOperationsInput | $Enums.Visibility
@@ -388,6 +414,8 @@ export type ContentItemUncheckedUpdateInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ContentItemUpdatetagsInput | string[]
   sourcePath?: Prisma.StringFieldUpdateOperationsInput | string
   sourceHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityFieldUpdateOperationsInput | $Enums.Visibility
@@ -406,6 +434,8 @@ export type ContentItemCreateManyInput = {
   slug: string
   title: string
   description?: string | null
+  body?: string | null
+  tags?: Prisma.ContentItemCreatetagsInput | string[]
   sourcePath: string
   sourceHash?: string | null
   visibility?: $Enums.Visibility
@@ -422,6 +452,8 @@ export type ContentItemUpdateManyMutationInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ContentItemUpdatetagsInput | string[]
   sourcePath?: Prisma.StringFieldUpdateOperationsInput | string
   sourceHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityFieldUpdateOperationsInput | $Enums.Visibility
@@ -438,6 +470,8 @@ export type ContentItemUncheckedUpdateManyInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ContentItemUpdatetagsInput | string[]
   sourcePath?: Prisma.StringFieldUpdateOperationsInput | string
   sourceHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityFieldUpdateOperationsInput | $Enums.Visibility
@@ -446,6 +480,14 @@ export type ContentItemUncheckedUpdateManyInput = {
   syncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type StringNullableListFilter<$PrismaModel = never> = {
+  equals?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel> | null
+  has?: string | Prisma.StringFieldRefInput<$PrismaModel> | null
+  hasEvery?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
+  hasSome?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
+  isEmpty?: boolean
 }
 
 export type ContentItemTypeSlugCompoundUniqueInput = {
@@ -459,6 +501,8 @@ export type ContentItemCountOrderByAggregateInput = {
   slug?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  body?: Prisma.SortOrder
+  tags?: Prisma.SortOrder
   sourcePath?: Prisma.SortOrder
   sourceHash?: Prisma.SortOrder
   visibility?: Prisma.SortOrder
@@ -475,6 +519,7 @@ export type ContentItemMaxOrderByAggregateInput = {
   slug?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  body?: Prisma.SortOrder
   sourcePath?: Prisma.SortOrder
   sourceHash?: Prisma.SortOrder
   visibility?: Prisma.SortOrder
@@ -491,6 +536,7 @@ export type ContentItemMinOrderByAggregateInput = {
   slug?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  body?: Prisma.SortOrder
   sourcePath?: Prisma.SortOrder
   sourceHash?: Prisma.SortOrder
   visibility?: Prisma.SortOrder
@@ -509,6 +555,15 @@ export type ContentItemScalarRelationFilter = {
 export type ContentItemNullableScalarRelationFilter = {
   is?: Prisma.ContentItemWhereInput | null
   isNot?: Prisma.ContentItemWhereInput | null
+}
+
+export type ContentItemCreatetagsInput = {
+  set: string[]
+}
+
+export type ContentItemUpdatetagsInput = {
+  set?: string[]
+  push?: string | string[]
 }
 
 export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -551,6 +606,8 @@ export type ContentItemCreateWithoutAssetsInput = {
   slug: string
   title: string
   description?: string | null
+  body?: string | null
+  tags?: Prisma.ContentItemCreatetagsInput | string[]
   sourcePath: string
   sourceHash?: string | null
   visibility?: $Enums.Visibility
@@ -568,6 +625,8 @@ export type ContentItemUncheckedCreateWithoutAssetsInput = {
   slug: string
   title: string
   description?: string | null
+  body?: string | null
+  tags?: Prisma.ContentItemCreatetagsInput | string[]
   sourcePath: string
   sourceHash?: string | null
   visibility?: $Enums.Visibility
@@ -601,6 +660,8 @@ export type ContentItemUpdateWithoutAssetsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ContentItemUpdatetagsInput | string[]
   sourcePath?: Prisma.StringFieldUpdateOperationsInput | string
   sourceHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityFieldUpdateOperationsInput | $Enums.Visibility
@@ -618,6 +679,8 @@ export type ContentItemUncheckedUpdateWithoutAssetsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ContentItemUpdatetagsInput | string[]
   sourcePath?: Prisma.StringFieldUpdateOperationsInput | string
   sourceHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityFieldUpdateOperationsInput | $Enums.Visibility
@@ -635,6 +698,8 @@ export type ContentItemCreateWithoutDocsNavNodesInput = {
   slug: string
   title: string
   description?: string | null
+  body?: string | null
+  tags?: Prisma.ContentItemCreatetagsInput | string[]
   sourcePath: string
   sourceHash?: string | null
   visibility?: $Enums.Visibility
@@ -652,6 +717,8 @@ export type ContentItemUncheckedCreateWithoutDocsNavNodesInput = {
   slug: string
   title: string
   description?: string | null
+  body?: string | null
+  tags?: Prisma.ContentItemCreatetagsInput | string[]
   sourcePath: string
   sourceHash?: string | null
   visibility?: $Enums.Visibility
@@ -685,6 +752,8 @@ export type ContentItemUpdateWithoutDocsNavNodesInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ContentItemUpdatetagsInput | string[]
   sourcePath?: Prisma.StringFieldUpdateOperationsInput | string
   sourceHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityFieldUpdateOperationsInput | $Enums.Visibility
@@ -702,6 +771,8 @@ export type ContentItemUncheckedUpdateWithoutDocsNavNodesInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ContentItemUpdatetagsInput | string[]
   sourcePath?: Prisma.StringFieldUpdateOperationsInput | string
   sourceHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   visibility?: Prisma.EnumVisibilityFieldUpdateOperationsInput | $Enums.Visibility
@@ -759,6 +830,8 @@ export type ContentItemSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   slug?: boolean
   title?: boolean
   description?: boolean
+  body?: boolean
+  tags?: boolean
   sourcePath?: boolean
   sourceHash?: boolean
   visibility?: boolean
@@ -778,6 +851,8 @@ export type ContentItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   slug?: boolean
   title?: boolean
   description?: boolean
+  body?: boolean
+  tags?: boolean
   sourcePath?: boolean
   sourceHash?: boolean
   visibility?: boolean
@@ -794,6 +869,8 @@ export type ContentItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   slug?: boolean
   title?: boolean
   description?: boolean
+  body?: boolean
+  tags?: boolean
   sourcePath?: boolean
   sourceHash?: boolean
   visibility?: boolean
@@ -810,6 +887,8 @@ export type ContentItemSelectScalar = {
   slug?: boolean
   title?: boolean
   description?: boolean
+  body?: boolean
+  tags?: boolean
   sourcePath?: boolean
   sourceHash?: boolean
   visibility?: boolean
@@ -820,7 +899,7 @@ export type ContentItemSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ContentItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "slug" | "title" | "description" | "sourcePath" | "sourceHash" | "visibility" | "published" | "publishedAt" | "syncedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["contentItem"]>
+export type ContentItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "slug" | "title" | "description" | "body" | "tags" | "sourcePath" | "sourceHash" | "visibility" | "published" | "publishedAt" | "syncedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["contentItem"]>
 export type ContentItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assets?: boolean | Prisma.ContentItem$assetsArgs<ExtArgs>
   docsNavNodes?: boolean | Prisma.ContentItem$docsNavNodesArgs<ExtArgs>
@@ -841,6 +920,8 @@ export type $ContentItemPayload<ExtArgs extends runtime.Types.Extensions.Interna
     slug: string
     title: string
     description: string | null
+    body: string | null
+    tags: string[]
     sourcePath: string
     sourceHash: string | null
     visibility: $Enums.Visibility
@@ -1279,6 +1360,8 @@ export interface ContentItemFieldRefs {
   readonly slug: Prisma.FieldRef<"ContentItem", 'String'>
   readonly title: Prisma.FieldRef<"ContentItem", 'String'>
   readonly description: Prisma.FieldRef<"ContentItem", 'String'>
+  readonly body: Prisma.FieldRef<"ContentItem", 'String'>
+  readonly tags: Prisma.FieldRef<"ContentItem", 'String[]'>
   readonly sourcePath: Prisma.FieldRef<"ContentItem", 'String'>
   readonly sourceHash: Prisma.FieldRef<"ContentItem", 'String'>
   readonly visibility: Prisma.FieldRef<"ContentItem", 'Visibility'>
