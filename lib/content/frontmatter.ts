@@ -127,9 +127,11 @@ function parseSimpleYaml(source: string) {
     const [, key, rawValue = ''] = keyValue;
     const value = rawValue.trim();
 
-    if (value === '|' || value === '>') {
-      const block = readYamlBlock(lines, index + 1);
-      data[key] = value === '|' ? block.lines.join('\n') : foldYamlLines(block.lines);
+    const blockScalar = parseBlockScalarIndicator(value);
+    if (blockScalar) {
+      const block = readYamlBlock(lines, index + 1, blockScalar.indent);
+      data[key] =
+        blockScalar.style === 'literal' ? block.lines.join('\n') : foldYamlLines(block.lines);
       index = block.lastIndex;
       continue;
     }
@@ -142,7 +144,15 @@ function parseSimpleYaml(source: string) {
     const items: unknown[] = [];
     let cursor = index + 1;
     while (cursor < lines.length) {
-      const item = lines[cursor]?.match(/^\s*-\s*(.*)$/);
+      const candidate = lines[cursor] ?? '';
+      const trimmedCandidate = stripYamlComment(candidate).trim();
+
+      if (trimmedCandidate.length === 0) {
+        cursor += 1;
+        continue;
+      }
+
+      const item = candidate.match(/^\s*-\s*(.*)$/);
       if (!item) {
         break;
       }
@@ -200,6 +210,22 @@ function stripMatchingQuotes(value: string) {
   return value;
 }
 
+function parseBlockScalarIndicator(value: string) {
+  const match = value.match(/^([|>])([+-]?\d*|\d*[+-]?)$/);
+
+  if (!match) {
+    return undefined;
+  }
+
+  const [, styleIndicator, options = ''] = match;
+  const indentationIndicator = options.match(/\d+/)?.[0];
+
+  return {
+    style: styleIndicator === '|' ? 'literal' : 'folded',
+    indent: indentationIndicator ? Number.parseInt(indentationIndicator, 10) : undefined,
+  };
+}
+
 function stripYamlComment(value: string) {
   let quote: '"' | "'" | undefined;
 
@@ -249,9 +275,10 @@ function splitInlineArray(value: string) {
   return items;
 }
 
-function readYamlBlock(lines: string[], startIndex: number) {
+function readYamlBlock(lines: string[], startIndex: number, explicitIndent?: number) {
   const blockLines: string[] = [];
   let lastIndex = startIndex - 1;
+  const blockIndent = explicitIndent ?? detectBlockIndent(lines, startIndex);
 
   for (let index = startIndex; index < lines.length; index += 1) {
     const line = lines[index] ?? '';
@@ -262,11 +289,12 @@ function readYamlBlock(lines: string[], startIndex: number) {
       continue;
     }
 
-    if (!/^\s+/.test(line)) {
+    const indentation = countLeadingSpaces(line);
+    if (indentation < blockIndent) {
       break;
     }
 
-    blockLines.push(line.replace(/^\s{2}/, ''));
+    blockLines.push(line.slice(blockIndent));
     lastIndex = index;
   }
 
@@ -274,6 +302,25 @@ function readYamlBlock(lines: string[], startIndex: number) {
     lines: blockLines,
     lastIndex,
   };
+}
+
+function detectBlockIndent(lines: string[], startIndex: number) {
+  for (let index = startIndex; index < lines.length; index += 1) {
+    const line = lines[index] ?? '';
+
+    if (line.trim().length === 0) {
+      continue;
+    }
+
+    const indentation = countLeadingSpaces(line);
+    return indentation > 0 ? indentation : 1;
+  }
+
+  return 1;
+}
+
+function countLeadingSpaces(value: string) {
+  return value.match(/^ */)?.[0].length ?? 0;
 }
 
 function foldYamlLines(lines: string[]) {
