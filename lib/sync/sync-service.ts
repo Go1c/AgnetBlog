@@ -18,6 +18,7 @@ import {
 } from '@/lib/sync/types';
 
 const INLINE_QUEUE_MESSAGE = 'No background queue is configured; sync executed inline in the request.';
+const FILE_FETCH_CONCURRENCY = 8;
 const ZERO_COMMIT = /^0{40}$/;
 const IGNORED_MARKDOWN_PATH_SEGMENTS = new Set([
   '.git',
@@ -31,6 +32,11 @@ const IGNORED_MARKDOWN_PATH_SEGMENTS = new Set([
 type MarkdownFile = {
   path: string;
   content: string;
+  sourceHash?: string;
+};
+
+type MarkdownFetchTarget = {
+  path: string;
   sourceHash?: string;
 };
 
@@ -66,6 +72,8 @@ export async function runIncrementalSync(input: IncrementalSyncInput): Promise<S
     const results: SyncFileResult[] = [];
     const upsertFiles: MarkdownFile[] = [];
 
+    const fetchTargets: MarkdownFetchTarget[] = [];
+
     for (const file of comparison.data.files) {
       const previousWasMarkdown = Boolean(
         file.previousFilename && isMarkdownPath(file.previousFilename),
@@ -85,23 +93,15 @@ export async function runIncrementalSync(input: IncrementalSyncInput): Promise<S
         continue;
       }
 
-      const content = await fetchFileContent(file.filename, input.after);
-      if (!content.ok) {
-        results.push({
-          path: file.filename,
-          operation: 'failed',
-          message: content.error.message,
-        });
-        continue;
-      }
-
-      upsertFiles.push({
+      fetchTargets.push({
         path: file.filename,
-        content: content.data,
-        sourceHash: file.sha ?? hashContent(content.data),
+        sourceHash: file.sha,
       });
     }
 
+    const fetched = await fetchMarkdownFiles(fetchTargets, input.after);
+    results.push(...fetched.results);
+    upsertFiles.push(...fetched.files);
     results.push(...(await ingestAndUpsertMarkdownFiles(upsertFiles)));
 
     return finishJob(input.jobId, buildRunResult('incremental', input.after, results));
@@ -142,6 +142,8 @@ export async function runReconciliationSync(input: ReconcileSyncInput): Promise<
     );
     const results: SyncFileResult[] = [];
     const files: MarkdownFile[] = [];
+    const indexedHashes = await loadIndexedSourceHashes();
+    const fetchTargets: MarkdownFetchTarget[] = [];
 
     if (input.reason) {
       results.push({
@@ -152,23 +154,25 @@ export async function runReconciliationSync(input: ReconcileSyncInput): Promise<
     }
 
     for (const item of markdownFiles) {
-      const content = await fetchFileContent(item.path, input.sourceRef);
-      if (!content.ok) {
+      const previousHash = indexedHashes.get(item.path);
+      if (previousHash && previousHash === item.sha) {
         results.push({
           path: item.path,
-          operation: 'failed',
-          message: content.error.message,
+          operation: 'skipped',
+          message: 'Unchanged GitHub blob.',
         });
         continue;
       }
 
-      files.push({
+      fetchTargets.push({
         path: item.path,
-        content: content.data,
         sourceHash: item.sha,
       });
     }
 
+    const fetched = await fetchMarkdownFiles(fetchTargets, input.sourceRef);
+    results.push(...fetched.results);
+    files.push(...fetched.files);
     results.push(...(await ingestAndUpsertMarkdownFiles(files)));
     results.push(
       ...(await deleteMissingRepositoryContent(new Set(markdownFiles.map((item) => item.path)))),
@@ -259,6 +263,55 @@ export async function ingestAndUpsertMarkdownFiles(files: MarkdownFile[]): Promi
   }
 
   return results;
+}
+
+async function fetchMarkdownFiles(
+  targets: MarkdownFetchTarget[],
+  ref: string | undefined,
+): Promise<{ files: MarkdownFile[]; results: SyncFileResult[] }> {
+  const fetched = await mapLimit(targets, FILE_FETCH_CONCURRENCY, async (target) => {
+    const content = await fetchFileContent(target.path, ref);
+
+    if (!content.ok) {
+      return {
+        result: {
+          path: target.path,
+          operation: 'failed' as const,
+          message: content.error.message,
+        },
+      };
+    }
+
+    return {
+      file: {
+        path: target.path,
+        content: content.data,
+        sourceHash: target.sourceHash ?? hashContent(content.data),
+      },
+    };
+  });
+
+  return {
+    files: fetched.flatMap((item) => (item.file ? [item.file] : [])),
+    results: fetched.flatMap((item) => (item.result ? [item.result] : [])),
+  };
+}
+
+async function loadIndexedSourceHashes() {
+  const indexedItems = await db.contentItem.findMany({
+    select: {
+      sourceHash: true,
+      sourcePath: true,
+    },
+  });
+
+  return new Map(
+    indexedItems
+      .filter((item): item is { sourcePath: string; sourceHash: string } =>
+        Boolean(item.sourceHash),
+      )
+      .map((item) => [item.sourcePath, item.sourceHash]),
+  );
 }
 
 export async function deleteDerivedContentPath(path: string): Promise<SyncFileResult> {
@@ -429,6 +482,29 @@ function hashContent(content: string) {
 
 function count(files: SyncFileResult[], operation: SyncFileResult['operation']) {
   return files.filter((file) => file.operation === operation).length;
+}
+
+async function mapLimit<T, R>(
+  items: T[],
+  concurrency: number,
+  mapper: (item: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const results = new Array<R>(items.length);
+  let nextIndex = 0;
+
+  async function worker() {
+    while (nextIndex < items.length) {
+      const index = nextIndex;
+      nextIndex += 1;
+      results[index] = await mapper(items[index] as T, index);
+    }
+  }
+
+  await Promise.all(
+    Array.from({ length: Math.min(concurrency, items.length) }, () => worker()),
+  );
+
+  return results;
 }
 
 function failJob(

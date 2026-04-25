@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import { listContentItems } from '@/lib/db/content-repository';
 import { ContentType, Visibility } from '@/lib/generated/prisma/client';
+import type { Prisma } from '@/lib/generated/prisma/client';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +14,6 @@ type AdminContentPageProps = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
-type ContentItemForList = Awaited<ReturnType<typeof listContentItems>>[number];
 type VisibilityFilter = 'all' | 'private' | 'public' | 'unlisted';
 type TypeFilter = 'all' | 'blog' | 'docs';
 type PublishedFilter = 'all' | 'published' | 'draft';
@@ -22,7 +22,34 @@ type ContentFilters = {
   visibility: VisibilityFilter;
   type: TypeFilter;
   published: PublishedFilter;
+  q: string;
+  path: string;
 };
+
+type DirectoryNode = {
+  name: string;
+  path: string;
+  count: number;
+  children: Map<string, DirectoryNode>;
+};
+
+const adminContentItemSelect = {
+  id: true,
+  type: true,
+  slug: true,
+  title: true,
+  description: true,
+  tags: true,
+  sourcePath: true,
+  visibility: true,
+  published: true,
+  syncedAt: true,
+  updatedAt: true,
+} satisfies Prisma.ContentItemSelect;
+
+type ContentItemForList = Prisma.ContentItemGetPayload<{
+  select: typeof adminContentItemSelect;
+}>;
 
 const contentTypeOptions = [
   { label: '博客', value: 'blog' },
@@ -52,17 +79,21 @@ export default async function AdminContentPage({ searchParams }: AdminContentPag
   const job = getSingleParam(params.job);
   const syncError = getSingleParam(params.sync_error);
   const syncFailed = getSingleParam(params.sync_failed);
+  const syncDeleted = getSingleParam(params.sync_deleted);
   const syncJob = getSingleParam(params.sync_job);
   const syncMode = getSingleParam(params.sync_mode);
   const syncScanned = getSingleParam(params.sync_scanned);
+  const syncSkipped = getSingleParam(params.sync_skipped);
   const syncStatus = getSingleParam(params.sync_status);
   const syncUpserted = getSingleParam(params.sync_upserted);
   const filters = parseFilters(params);
   const allItems = await listContentItems({
+    select: adminContentItemSelect,
     orderBy: [{ updatedAt: 'desc' }, { syncedAt: 'desc' }],
   });
   const items = filterContentItems(allItems, filters);
   const counts = countContentItems(allItems);
+  const directoryTree = buildDirectoryTree(allItems);
   const listReturnTo = buildAdminContentPath(filters);
 
   return (
@@ -79,7 +110,7 @@ export default async function AdminContentPage({ searchParams }: AdminContentPag
             当前 {items.length} 条 / 全部 {allItems.length} 条
           </div>
           <form action="/api/admin/sync" method="post">
-            <input name="returnTo" type="hidden" value="/admin/content" />
+            <input name="returnTo" type="hidden" value={listReturnTo} />
             <button
               className="rounded-md bg-teal-700 px-3 py-2 text-sm font-semibold text-white hover:bg-teal-800"
               type="submit"
@@ -102,6 +133,8 @@ export default async function AdminContentPage({ searchParams }: AdminContentPag
           {syncMode ? `，模式 ${formatStatus(syncMode)}` : ''}
           {syncScanned ? `，扫描 ${syncScanned} 个文件` : ''}
           {syncUpserted ? `，写入 ${syncUpserted} 个` : ''}
+          {syncDeleted ? `，删除 ${syncDeleted} 个` : ''}
+          {syncSkipped ? `，跳过 ${syncSkipped} 个未变更文件` : ''}
           {syncFailed ? `，失败 ${syncFailed} 个` : ''}
           {syncJob ? `，任务 ${syncJob}。` : '。'}
         </div>
@@ -127,7 +160,18 @@ export default async function AdminContentPage({ searchParams }: AdminContentPag
         </div>
       ) : null}
 
-      <form className="mt-6 grid gap-3 md:grid-cols-[1fr_1fr_1fr_auto_auto]" method="get">
+      <form className="mt-6 grid gap-3 md:grid-cols-[1.4fr_1fr_1fr_1fr_auto_auto]" method="get">
+        {filters.path ? <input name="path" type="hidden" value={filters.path} /> : null}
+        <label className="text-sm font-medium text-stone-700">
+          模糊搜索
+          <input
+            className="mt-1 w-full rounded-md border border-stone-900/15 bg-white px-3 py-2 text-sm text-stone-900"
+            defaultValue={filters.q}
+            name="q"
+            placeholder="标题、路径、slug、标签"
+            type="search"
+          />
+        </label>
         <label className="text-sm font-medium text-stone-700">
           可见性
           <select
@@ -179,103 +223,134 @@ export default async function AdminContentPage({ searchParams }: AdminContentPag
         </Link>
       </form>
 
-      <div className="mt-6 overflow-hidden rounded-md border border-stone-900/10">
-        <div className="hidden grid-cols-[minmax(0,1.5fr)_120px_120px_120px_130px_180px] gap-3 border-b border-stone-900/10 bg-stone-50 px-4 py-2 text-xs font-bold uppercase tracking-wide text-stone-500 md:grid">
-          <span>来源</span>
-          <span>可见性</span>
-          <span>发布状态</span>
-          <span>类型</span>
-          <span>同步时间</span>
-          <span>操作</span>
-        </div>
-        {items.length === 0 ? (
-          <p className="px-4 py-6 text-sm text-stone-600">
-            {allItems.length === 0 ? '还没有同步到数据库的内容。' : '当前筛选下没有内容。'}
-          </p>
-        ) : (
-          items.map((item) => (
-            <form
-              action={`/api/admin/content/${encodeURIComponent(item.id)}/metadata`}
-              className="grid gap-3 border-b border-stone-900/10 px-4 py-3 last:border-b-0 md:grid-cols-[minmax(0,1.5fr)_120px_120px_120px_130px_180px] md:items-center"
-              key={item.id}
-              method="post"
+      <div className="mt-6 grid gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
+        <aside className="rounded-md border border-stone-900/10 bg-stone-50/60 p-3">
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <h3 className="text-sm font-bold text-stone-950">目录</h3>
+            <Link
+              className="text-xs font-semibold text-teal-800 hover:text-teal-950"
+              href={buildAdminContentPath(filters, { path: '' })}
             >
-              <input name="returnTo" type="hidden" value={listReturnTo} />
-              <div className="min-w-0">
-                <Link
-                  className="block truncate text-sm font-semibold text-stone-950 hover:text-teal-800"
-                  href={`/admin/content/${encodeURIComponent(item.id)}`}
+              全部
+            </Link>
+          </div>
+          <nav className="max-h-[640px] overflow-auto pr-1 text-sm" aria-label="内容目录">
+            {renderDirectoryNode(directoryTree, filters)}
+          </nav>
+        </aside>
+
+        <div className="min-w-0">
+          <div className="mb-3 flex flex-col gap-1 text-sm text-stone-600 md:flex-row md:items-center md:justify-between">
+            <div>
+              当前目录：
+              <span className="font-semibold text-stone-900">
+                {filters.path || '全部'}
+              </span>
+            </div>
+            <div>
+              匹配 {items.length} 条 / 全部 {allItems.length} 条
+            </div>
+          </div>
+
+          <div className="overflow-hidden rounded-md border border-stone-900/10">
+            <div className="hidden grid-cols-[minmax(0,1.5fr)_120px_120px_120px_130px_180px] gap-3 border-b border-stone-900/10 bg-stone-50 px-4 py-2 text-xs font-bold uppercase tracking-wide text-stone-500 md:grid">
+              <span>来源</span>
+              <span>可见性</span>
+              <span>发布状态</span>
+              <span>类型</span>
+              <span>同步时间</span>
+              <span>操作</span>
+            </div>
+            {items.length === 0 ? (
+              <p className="px-4 py-6 text-sm text-stone-600">
+                {allItems.length === 0 ? '还没有同步到数据库的内容。' : '当前条件下没有内容。'}
+              </p>
+            ) : (
+              items.map((item) => (
+                <form
+                  action={`/api/admin/content/${encodeURIComponent(item.id)}/metadata`}
+                  className="grid gap-3 border-b border-stone-900/10 px-4 py-3 last:border-b-0 md:grid-cols-[minmax(0,1.5fr)_120px_120px_120px_130px_180px] md:items-center"
+                  key={item.id}
+                  method="post"
                 >
-                  {item.title}
-                </Link>
-                <div className="mt-1 truncate text-xs text-stone-500">{item.sourcePath}</div>
-                <div className="mt-1 text-xs text-stone-500">
-                  {item.body?.trim() ? `${item.body.length} 个字符` : '未同步正文'}
-                </div>
-              </div>
-              <label className="sr-only" htmlFor={`visibility-${item.id}`}>
-                可见性
-              </label>
-              <select
-                className="w-full rounded-md border border-stone-900/15 bg-white px-2 py-2 text-sm text-stone-900"
-                defaultValue={toFrontmatterVisibility(item.visibility)}
-                id={`visibility-${item.id}`}
-                name="visibility"
-              >
-                {visibilityOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <label className="sr-only" htmlFor={`published-${item.id}`}>
-                发布状态
-              </label>
-              <select
-                className="w-full rounded-md border border-stone-900/15 bg-white px-2 py-2 text-sm text-stone-900"
-                defaultValue={item.published ? 'true' : 'false'}
-                id={`published-${item.id}`}
-                name="published"
-              >
-                {publishedOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <label className="sr-only" htmlFor={`contentType-${item.id}`}>
-                内容类型
-              </label>
-              <select
-                className="w-full rounded-md border border-stone-900/15 bg-white px-2 py-2 text-sm text-stone-900"
-                defaultValue={toFrontmatterContentType(item.type)}
-                id={`contentType-${item.id}`}
-                name="contentType"
-              >
-                {contentTypeOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <div className="text-xs text-stone-500">{formatDateTime(item.syncedAt)}</div>
-              <div className="flex flex-wrap gap-2">
-                <Link
-                  className="rounded-md border border-stone-900/15 px-3 py-2 text-sm font-semibold text-stone-800 hover:border-teal-700/40 hover:text-teal-800"
-                  href={`/admin/content/${encodeURIComponent(item.id)}`}
-                >
-                  查看正文
-                </Link>
-                <button
-                  className="rounded-md bg-stone-950 px-3 py-2 text-sm font-semibold text-white hover:bg-stone-800"
-                  type="submit"
-                >
-                  保存
-                </button>
-              </div>
-            </form>
-          ))
-        )}
+                  <input name="returnTo" type="hidden" value={listReturnTo} />
+                  <div className="min-w-0">
+                    <Link
+                      className="block truncate text-sm font-semibold text-stone-950 hover:text-teal-800"
+                      href={`/admin/content/${encodeURIComponent(item.id)}`}
+                    >
+                      {item.title}
+                    </Link>
+                    <div className="mt-1 truncate text-xs text-stone-500">{item.sourcePath}</div>
+                    <div className="mt-1 truncate text-xs text-stone-500">
+                      {item.description || item.slug}
+                    </div>
+                  </div>
+                  <label className="sr-only" htmlFor={`visibility-${item.id}`}>
+                    可见性
+                  </label>
+                  <select
+                    className="w-full rounded-md border border-stone-900/15 bg-white px-2 py-2 text-sm text-stone-900"
+                    defaultValue={toFrontmatterVisibility(item.visibility)}
+                    id={`visibility-${item.id}`}
+                    name="visibility"
+                  >
+                    {visibilityOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <label className="sr-only" htmlFor={`published-${item.id}`}>
+                    发布状态
+                  </label>
+                  <select
+                    className="w-full rounded-md border border-stone-900/15 bg-white px-2 py-2 text-sm text-stone-900"
+                    defaultValue={item.published ? 'true' : 'false'}
+                    id={`published-${item.id}`}
+                    name="published"
+                  >
+                    {publishedOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <label className="sr-only" htmlFor={`contentType-${item.id}`}>
+                    内容类型
+                  </label>
+                  <select
+                    className="w-full rounded-md border border-stone-900/15 bg-white px-2 py-2 text-sm text-stone-900"
+                    defaultValue={toFrontmatterContentType(item.type)}
+                    id={`contentType-${item.id}`}
+                    name="contentType"
+                  >
+                    {contentTypeOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="text-xs text-stone-500">{formatDateTime(item.syncedAt)}</div>
+                  <div className="flex flex-wrap gap-2">
+                    <Link
+                      className="rounded-md border border-stone-900/15 px-3 py-2 text-sm font-semibold text-stone-800 hover:border-teal-700/40 hover:text-teal-800"
+                      href={`/admin/content/${encodeURIComponent(item.id)}`}
+                    >
+                      查看正文
+                    </Link>
+                    <button
+                      className="rounded-md bg-stone-950 px-3 py-2 text-sm font-semibold text-white hover:bg-stone-800"
+                      type="submit"
+                    >
+                      保存
+                    </button>
+                  </div>
+                </form>
+              ))
+            )}
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -286,10 +361,14 @@ function parseFilters(params: Record<string, string | string[] | undefined>): Co
     visibility: getFilter(params.visibility, visibilityFilterValues, 'all'),
     type: getFilter(params.type, typeFilterValues, 'all'),
     published: getFilter(params.published, publishedFilterValues, 'all'),
+    q: normalizeFreeTextParam(params.q),
+    path: normalizePathParam(params.path),
   };
 }
 
 function filterContentItems(items: ContentItemForList[], filters: ContentFilters) {
+  const searchTokens = tokenizeSearch(filters.q);
+
   return items.filter((item) => {
     const visibilityMatches =
       filters.visibility === 'all' || toFrontmatterVisibility(item.visibility) === filters.visibility;
@@ -297,8 +376,11 @@ function filterContentItems(items: ContentItemForList[], filters: ContentFilters
     const publishedMatches =
       filters.published === 'all' ||
       (filters.published === 'published' ? item.published : !item.published);
+    const pathMatches =
+      !filters.path || item.sourcePath === filters.path || item.sourcePath.startsWith(`${filters.path}/`);
+    const searchMatches = matchesSearch(item, searchTokens);
 
-    return visibilityMatches && typeMatches && publishedMatches;
+    return visibilityMatches && typeMatches && publishedMatches && pathMatches && searchMatches;
   });
 }
 
@@ -315,22 +397,188 @@ function countContentItems(items: ContentItemForList[]) {
   };
 }
 
-function buildAdminContentPath(filters: ContentFilters) {
+function buildDirectoryTree(items: ContentItemForList[]): DirectoryNode {
+  const root: DirectoryNode = {
+    name: '全部',
+    path: '',
+    count: items.length,
+    children: new Map(),
+  };
+
+  for (const item of items) {
+    const segments = item.sourcePath.split('/').filter(Boolean).slice(0, -1);
+    let current = root;
+
+    for (const segment of segments) {
+      const path = current.path ? `${current.path}/${segment}` : segment;
+      const existing = current.children.get(segment);
+      const child =
+        existing ??
+        {
+          name: segment,
+          path,
+          count: 0,
+          children: new Map<string, DirectoryNode>(),
+        };
+
+      child.count += 1;
+      current.children.set(segment, child);
+      current = child;
+    }
+  }
+
+  return root;
+}
+
+function renderDirectoryNode(root: DirectoryNode, filters: ContentFilters) {
+  const children = sortDirectoryNodes([...root.children.values()]);
+
+  return (
+    <ul className="space-y-1">
+      <li>
+        <Link
+          className={directoryLinkClass(filters.path === '')}
+          href={buildAdminContentPath(filters, { path: '' })}
+        >
+          <span className="truncate">全部内容</span>
+          <span className="text-xs text-stone-500">{root.count}</span>
+        </Link>
+      </li>
+      {children.map((child) => (
+        <DirectoryTreeItem filters={filters} key={child.path} node={child} />
+      ))}
+    </ul>
+  );
+}
+
+function DirectoryTreeItem({ node, filters }: { node: DirectoryNode; filters: ContentFilters }) {
+  const children = sortDirectoryNodes([...node.children.values()]);
+  const isSelected = filters.path === node.path;
+  const isOpen =
+    isSelected || Boolean(filters.path && filters.path.startsWith(`${node.path}/`));
+  const link = (
+    <Link
+      className={directoryLinkClass(isSelected)}
+      href={buildAdminContentPath(filters, { path: node.path })}
+    >
+      <span className="truncate">{node.name}</span>
+      <span className="text-xs text-stone-500">{node.count}</span>
+    </Link>
+  );
+
+  if (children.length === 0) {
+    return <li>{link}</li>;
+  }
+
+  return (
+    <li>
+      <details open={isOpen}>
+        <summary className="list-none">
+          {link}
+        </summary>
+        <ul className="mt-1 space-y-1 border-l border-stone-900/10 pl-3">
+          {children.map((child) => (
+            <DirectoryTreeItem filters={filters} key={child.path} node={child} />
+          ))}
+        </ul>
+      </details>
+    </li>
+  );
+}
+
+function sortDirectoryNodes(nodes: DirectoryNode[]) {
+  return nodes.sort((a, b) => a.name.localeCompare(b.name, 'zh-CN'));
+}
+
+function directoryLinkClass(selected: boolean) {
+  return [
+    'flex items-center justify-between gap-2 rounded-md px-2 py-1.5 font-medium',
+    selected
+      ? 'bg-teal-700 text-white [&_span:last-child]:text-teal-50'
+      : 'text-stone-700 hover:bg-white hover:text-teal-800',
+  ].join(' ');
+}
+
+function buildAdminContentPath(
+  filters: ContentFilters,
+  overrides: Partial<ContentFilters> = {},
+) {
+  const next = {
+    ...filters,
+    ...overrides,
+  };
   const target = new URL('/admin/content', 'https://local.invalid');
 
-  if (filters.visibility !== 'all') {
-    target.searchParams.set('visibility', filters.visibility);
+  if (next.q) {
+    target.searchParams.set('q', next.q);
   }
 
-  if (filters.type !== 'all') {
-    target.searchParams.set('type', filters.type);
+  if (next.path) {
+    target.searchParams.set('path', next.path);
   }
 
-  if (filters.published !== 'all') {
-    target.searchParams.set('published', filters.published);
+  if (next.visibility !== 'all') {
+    target.searchParams.set('visibility', next.visibility);
+  }
+
+  if (next.type !== 'all') {
+    target.searchParams.set('type', next.type);
+  }
+
+  if (next.published !== 'all') {
+    target.searchParams.set('published', next.published);
   }
 
   return `${target.pathname}${target.search}`;
+}
+
+function matchesSearch(item: ContentItemForList, tokens: string[]) {
+  if (tokens.length === 0) {
+    return true;
+  }
+
+  const haystack = normalizeSearchText(
+    [
+      item.title,
+      item.description,
+      item.slug,
+      item.sourcePath,
+      toFrontmatterContentType(item.type),
+      toFrontmatterVisibility(item.visibility),
+      item.published ? 'published 已发布' : 'draft 草稿',
+      item.tags.join(' '),
+    ]
+      .filter(Boolean)
+      .join(' '),
+  );
+
+  return tokens.every((token) => haystack.includes(token) || isSubsequence(token, haystack));
+}
+
+function tokenizeSearch(value: string) {
+  return value
+    .split(/\s+/)
+    .map(normalizeSearchText)
+    .filter(Boolean);
+}
+
+function normalizeSearchText(value: string) {
+  return value.toLowerCase().replace(/[\s/_.,:;()[\]{}'"`-]+/g, '');
+}
+
+function isSubsequence(needle: string, haystack: string) {
+  let index = 0;
+
+  for (const character of haystack) {
+    if (character === needle[index]) {
+      index += 1;
+      if (index === needle.length) {
+        return true;
+      }
+    }
+  }
+
+  return needle.length === 0;
 }
 
 function toFrontmatterVisibility(visibility: Visibility) {
@@ -360,6 +608,17 @@ function getFilter<T extends string>(
 
 function getSingleParam(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
+}
+
+function normalizeFreeTextParam(value: string | string[] | undefined) {
+  return getSingleParam(value)?.trim().slice(0, 120) ?? '';
+}
+
+function normalizePathParam(value: string | string[] | undefined) {
+  return (getSingleParam(value) ?? '')
+    .replace(/\\/g, '/')
+    .replace(/^\/+|\/+$/g, '')
+    .trim();
 }
 
 function formatStatus(value: string) {

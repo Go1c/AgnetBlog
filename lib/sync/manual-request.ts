@@ -25,6 +25,8 @@ type ManualSyncRedirectResult = {
   status?: string;
   scanned?: number;
   upserted?: number;
+  deleted?: number;
+  skipped?: number;
   failed?: number;
 };
 
@@ -120,6 +122,14 @@ export function buildManualSyncRedirectLocation(
 
   if (result.upserted !== undefined) {
     target.searchParams.set('sync_upserted', String(result.upserted));
+  }
+
+  if (result.deleted !== undefined) {
+    target.searchParams.set('sync_deleted', String(result.deleted));
+  }
+
+  if (result.skipped !== undefined) {
+    target.searchParams.set('sync_skipped', String(result.skipped));
   }
 
   if (result.failed !== undefined) {

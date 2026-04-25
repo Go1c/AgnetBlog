@@ -83,6 +83,8 @@ export const POST = withAdminRoute(async (actor, request) => {
       status: result.status,
       scanned: result.scanned,
       upserted: result.upserted,
+      deleted: result.deleted,
+      skipped: result.skipped,
       failed: result.failed,
     });
   }
@@ -107,6 +109,8 @@ function redirectToAdminPage(
     scanned?: number;
     upserted?: number;
     failed?: number;
+    deleted?: number;
+    skipped?: number;
   },
 ) {
   return new Response(null, {
