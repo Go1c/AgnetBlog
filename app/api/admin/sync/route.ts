@@ -1,7 +1,10 @@
 import { withAdminRoute } from '@/lib/auth/admin';
 import { createSyncJob } from '@/lib/db/sync-job-repository';
 import { SyncStatus, SyncTrigger } from '@/lib/generated/prisma/client';
-import { parseManualSyncRequest } from '@/lib/sync/manual-request';
+import {
+  buildManualSyncRedirectLocation,
+  parseManualSyncRequest,
+} from '@/lib/sync/manual-request';
 import { runReconciliation } from '@/lib/sync/reconcile';
 import { runIncrementalSync } from '@/lib/sync/sync-service';
 
@@ -91,7 +94,7 @@ export const POST = withAdminRoute(async (actor, request) => {
 });
 
 function redirectToAdminPage(
-  request: Request,
+  _request: Request,
   returnTo: string | undefined,
   result: {
     error?: string;
@@ -100,23 +103,10 @@ function redirectToAdminPage(
     status?: string;
   },
 ) {
-  const target = new URL(returnTo ?? '/admin/sync-jobs', request.url);
-
-  if (result.error) {
-    target.searchParams.set('sync_error', result.error);
-  }
-
-  if (result.jobId) {
-    target.searchParams.set('sync_job', result.jobId);
-  }
-
-  if (result.mode) {
-    target.searchParams.set('sync_mode', result.mode);
-  }
-
-  if (result.status) {
-    target.searchParams.set('sync_status', result.status);
-  }
-
-  return Response.redirect(target, 303);
+  return new Response(null, {
+    status: 303,
+    headers: {
+      Location: buildManualSyncRedirectLocation(returnTo, result),
+    },
+  });
 }

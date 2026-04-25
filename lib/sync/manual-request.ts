@@ -18,6 +18,13 @@ export type ManualSyncParseResult =
       returnTo?: string;
     };
 
+type ManualSyncRedirectResult = {
+  error?: string;
+  jobId?: string;
+  mode?: string;
+  status?: string;
+};
+
 export async function parseManualSyncRequest(
   request: Request,
   options: ManualSyncParseOptions = {},
@@ -82,6 +89,31 @@ export async function parseManualSyncRequest(
   };
 }
 
+export function buildManualSyncRedirectLocation(
+  returnTo: string | undefined,
+  result: ManualSyncRedirectResult,
+) {
+  const target = new URL(safeReturnPath(returnTo) ?? '/admin/sync-jobs', 'https://local.invalid');
+
+  if (result.error) {
+    target.searchParams.set('sync_error', result.error);
+  }
+
+  if (result.jobId) {
+    target.searchParams.set('sync_job', result.jobId);
+  }
+
+  if (result.mode) {
+    target.searchParams.set('sync_mode', result.mode);
+  }
+
+  if (result.status) {
+    target.searchParams.set('sync_status', result.status);
+  }
+
+  return `${target.pathname}${target.search}`;
+}
+
 function parseManualSyncRecord(
   candidate: Record<string, unknown>,
 ): { ok: true; data: ManualSyncRequest } | { ok: false; error: string } {
@@ -124,7 +156,7 @@ function emptyToUndefined(value: string | null) {
   return value?.trim() || undefined;
 }
 
-function safeReturnPath(value: string | null) {
+function safeReturnPath(value: string | null | undefined) {
   const trimmed = value?.trim();
 
   if (!trimmed?.startsWith('/') || trimmed.startsWith('//')) {

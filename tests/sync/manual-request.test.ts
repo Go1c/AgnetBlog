@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
-import { parseManualSyncRequest } from '@/lib/sync/manual-request';
+import {
+  buildManualSyncRedirectLocation,
+  parseManualSyncRequest,
+} from '@/lib/sync/manual-request';
 
 describe('manual sync request parsing', () => {
   it('accepts admin form posts and preserves a safe return path', async () => {
@@ -67,5 +70,21 @@ describe('manual sync request parsing', () => {
       error: 'invalid_mode',
       responseMode: 'json',
     });
+  });
+
+  it('builds relative redirect locations so proxies cannot leak localhost hosts', () => {
+    expect(
+      buildManualSyncRedirectLocation('/admin/content', {
+        jobId: 'job-1',
+        mode: 'reconcile',
+        status: 'SUCCESS',
+      }),
+    ).toBe('/admin/content?sync_job=job-1&sync_mode=reconcile&sync_status=SUCCESS');
+
+    expect(
+      buildManualSyncRedirectLocation('http://localhost:8080/admin/content', {
+        error: 'invalid_mode',
+      }),
+    ).toBe('/admin/sync-jobs?sync_error=invalid_mode');
   });
 });
