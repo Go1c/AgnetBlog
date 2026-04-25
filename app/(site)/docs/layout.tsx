@@ -5,6 +5,29 @@ import { baseOptions } from '@/lib/layout.shared';
 import { source } from '@/lib/source';
 import { isPublicListable } from '@/lib/content/visibility';
 
+function hasPublicContent(node: Node) {
+  return node.type === 'page' || node.type === 'folder';
+}
+
+function filterChildren(children: Node[], publicUrls: Set<string>) {
+  const filtered = children
+    .map((child) => filterNode(child, publicUrls))
+    .filter((child): child is Node => child !== null);
+
+  return filtered.filter((node, index) => {
+    if (node.type !== 'separator') {
+      return true;
+    }
+
+    const nextSeparatorIndex = filtered.findIndex(
+      (next, nextIndex) => nextIndex > index && next.type === 'separator',
+    );
+    const groupEnd = nextSeparatorIndex === -1 ? filtered.length : nextSeparatorIndex;
+
+    return filtered.slice(index + 1, groupEnd).some(hasPublicContent);
+  });
+}
+
 function filterNode(node: Node, publicUrls: Set<string>): Node | null {
   if (node.type === 'page') {
     return publicUrls.has(node.url) ? node : null;
@@ -15,9 +38,7 @@ function filterNode(node: Node, publicUrls: Set<string>): Node | null {
   }
 
   const index = node.index && publicUrls.has(node.index.url) ? node.index : undefined;
-  const children = node.children
-    .map((child) => filterNode(child, publicUrls))
-    .filter((child): child is Node => child !== null);
+  const children = filterChildren(node.children, publicUrls);
 
   if (!index && children.length === 0) {
     return null;
@@ -33,9 +54,7 @@ function filterNode(node: Node, publicUrls: Set<string>): Node | null {
 function filterPageTree(tree: Root, publicUrls: Set<string>): Root {
   return {
     ...tree,
-    children: tree.children
-      .map((node) => filterNode(node, publicUrls))
-      .filter((node): node is Node => node !== null),
+    children: filterChildren(tree.children, publicUrls),
     fallback: tree.fallback ? filterPageTree(tree.fallback, publicUrls) : undefined,
   };
 }

@@ -22,9 +22,19 @@ function toDate(value?: string | Date) {
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const siteUrl = getSiteUrl();
-  const staticRoutes: MetadataRoute.Sitemap = ['/', '/blog', '/docs'].map((route) => ({
+  const staticRoutes: MetadataRoute.Sitemap = ['/', '/blog'].map((route) => ({
     url: `${siteUrl}${route}`,
   }));
+  const docsIndex = source.getPage([]);
+  const docsIndexRoute =
+    docsIndex && isSitemapEligible(docsIndex)
+      ? [
+          {
+            url: `${siteUrl}${docsIndex.url}`,
+            lastModified: toDate(docsIndex.data.updatedAt ?? docsIndex.data.date),
+          },
+        ]
+      : [];
 
   const blogRoutes = blog
     .getPages()
@@ -36,11 +46,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const docsRoutes = source
     .getPages()
+    .filter((page) => page.url !== docsIndex?.url)
     .filter(isSitemapEligible)
     .map((page) => ({
       url: `${siteUrl}${page.url}`,
       lastModified: toDate(page.data.updatedAt ?? page.data.date),
     }));
 
-  return [...staticRoutes, ...blogRoutes, ...docsRoutes];
+  return [...staticRoutes, ...docsIndexRoute, ...blogRoutes, ...docsRoutes];
 }
