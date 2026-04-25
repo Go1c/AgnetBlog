@@ -30,9 +30,12 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 }
 
 export function generateStaticParams() {
-  return blog.getPages().map((page) => ({
-    slug: page.slugs,
-  }));
+  return blog
+    .getPages()
+    .filter(isDirectlyReadable)
+    .map((page) => ({
+      slug: page.slugs,
+    }));
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
