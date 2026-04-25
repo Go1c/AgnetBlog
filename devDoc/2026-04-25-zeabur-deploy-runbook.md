@@ -129,7 +129,7 @@ GET /api/admin/health
 npx prisma db push
 ```
 
-然后让笔记仓库 push 一次触发 webhook，或调用 `/api/admin/sync` 触发一次全量同步。
+然后进入 `/admin/content` 点击“立即同步”，或让笔记仓库 push 一次触发 webhook。
 公开 `/blog` 页面读取 PostgreSQL 里的同步结果；
 只配置 GitHub 环境变量不会自动显示历史文章。
 

@@ -26,6 +26,10 @@ export default async function AdminContentPage({ searchParams }: AdminContentPag
   const auditFailed = getSingleParam(params.audit_failed);
   const error = getSingleParam(params.error);
   const job = getSingleParam(params.job);
+  const syncError = getSingleParam(params.sync_error);
+  const syncJob = getSingleParam(params.sync_job);
+  const syncMode = getSingleParam(params.sync_mode);
+  const syncStatus = getSingleParam(params.sync_status);
   const items = await listContentItems({
     orderBy: [{ updatedAt: 'desc' }],
     take: 50,
@@ -40,8 +44,33 @@ export default async function AdminContentPage({ searchParams }: AdminContentPag
             在后台修改发布元数据，系统会写回 GitHub frontmatter 并同步索引。
           </p>
         </div>
-        <div className="text-sm font-medium text-stone-600">{items.length} 条内容</div>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="text-sm font-medium text-stone-600">{items.length} 条内容</div>
+          <form action="/api/admin/sync" method="post">
+            <input name="returnTo" type="hidden" value="/admin/content" />
+            <button
+              className="rounded-md bg-teal-700 px-3 py-2 text-sm font-semibold text-white hover:bg-teal-800"
+              type="submit"
+            >
+              立即同步
+            </button>
+          </form>
+        </div>
       </div>
+
+      {syncError ? (
+        <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
+          同步失败：{formatStatus(syncError)}
+        </div>
+      ) : null}
+
+      {syncStatus ? (
+        <div className="mt-4 rounded-md border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-medium text-teal-900">
+          手动同步已执行：{formatStatus(syncStatus)}
+          {syncMode ? `，模式 ${formatStatus(syncMode)}` : ''}
+          {syncJob ? `，任务 ${syncJob}。` : '。'}
+        </div>
+      ) : null}
 
       {error ? (
         <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">

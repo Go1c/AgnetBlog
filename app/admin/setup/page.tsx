@@ -144,8 +144,8 @@ export default function AdminSetupPage() {
             不会自动把历史文章立刻塞进数据库。
           </p>
           <p>
-            第一次部署后请先运行 npx prisma db push，然后让笔记仓库 push 一次触发 webhook，
-            或调用 /api/admin/sync 跑一次全量同步。同步成功后，/blog 才会显示笔记仓库
+            第一次部署后请先运行 npx prisma db push，然后进入内容页点击“立即同步”，
+            或让笔记仓库 push 一次触发 webhook。同步成功后，/blog 才会显示笔记仓库
             content/blog 目录下的公开文章。
           </p>
           <p>

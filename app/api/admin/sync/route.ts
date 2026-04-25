@@ -1,15 +1,23 @@
 import { withAdminRoute } from '@/lib/auth/admin';
 import { createSyncJob } from '@/lib/db/sync-job-repository';
 import { SyncStatus, SyncTrigger } from '@/lib/generated/prisma/client';
+import { parseManualSyncRequest } from '@/lib/sync/manual-request';
 import { runReconciliation } from '@/lib/sync/reconcile';
 import { runIncrementalSync } from '@/lib/sync/sync-service';
-import type { ManualSyncRequest } from '@/lib/sync/types';
 
 export const dynamic = 'force-dynamic';
 
 export const POST = withAdminRoute(async (actor, request) => {
-  const parsed = await parseManualSyncRequest(request);
+  const parsed = await parseManualSyncRequest(request, {
+    allowFormRedirect: true,
+  });
   if (!parsed.ok) {
+    if (parsed.responseMode === 'redirect') {
+      return redirectToAdminPage(request, parsed.returnTo, {
+        error: parsed.error,
+      });
+    }
+
     return Response.json(
       {
         ok: false,
@@ -23,6 +31,12 @@ export const POST = withAdminRoute(async (actor, request) => {
   const mode = input.mode ?? 'reconcile';
 
   if (mode === 'incremental' && !input.after) {
+    if (parsed.responseMode === 'redirect') {
+      return redirectToAdminPage(request, parsed.returnTo, {
+        error: 'missing_after_commit',
+      });
+    }
+
     return Response.json(
       {
         ok: false,
@@ -59,6 +73,14 @@ export const POST = withAdminRoute(async (actor, request) => {
           sourceRef: input.after,
         });
 
+  if (parsed.responseMode === 'redirect') {
+    return redirectToAdminPage(request, parsed.returnTo, {
+      jobId: job.id,
+      mode: result.mode,
+      status: result.status,
+    });
+  }
+
   return Response.json({
     ok: true,
     jobId: job.id,
@@ -68,75 +90,33 @@ export const POST = withAdminRoute(async (actor, request) => {
   });
 });
 
-type ManualSyncParseResult =
-  | {
-      ok: true;
-      data: ManualSyncRequest;
-    }
-  | {
-      ok: false;
-      error: string;
-    };
+function redirectToAdminPage(
+  request: Request,
+  returnTo: string | undefined,
+  result: {
+    error?: string;
+    jobId?: string;
+    mode?: string;
+    status?: string;
+  },
+) {
+  const target = new URL(returnTo ?? '/admin/sync-jobs', request.url);
 
-async function parseManualSyncRequest(request: Request): Promise<ManualSyncParseResult> {
-  const text = await request.text();
-
-  if (text.trim().length === 0) {
-    return {
-      ok: true,
-      data: {},
-    };
+  if (result.error) {
+    target.searchParams.set('sync_error', result.error);
   }
 
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(text) as unknown;
-  } catch {
-    return {
-      ok: false,
-      error: 'invalid_json',
-    };
+  if (result.jobId) {
+    target.searchParams.set('sync_job', result.jobId);
   }
 
-  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-    return {
-      ok: false,
-      error: 'invalid_body',
-    };
+  if (result.mode) {
+    target.searchParams.set('sync_mode', result.mode);
   }
 
-  const candidate = parsed as Record<string, unknown>;
-  if (
-    candidate.mode !== undefined &&
-    candidate.mode !== 'reconcile' &&
-    candidate.mode !== 'incremental'
-  ) {
-    return {
-      ok: false,
-      error: 'invalid_mode',
-    };
+  if (result.status) {
+    target.searchParams.set('sync_status', result.status);
   }
 
-  if (candidate.before !== undefined && typeof candidate.before !== 'string') {
-    return {
-      ok: false,
-      error: 'invalid_before',
-    };
-  }
-
-  if (candidate.after !== undefined && typeof candidate.after !== 'string') {
-    return {
-      ok: false,
-      error: 'invalid_after',
-    };
-  }
-
-  return {
-    ok: true,
-    data: {
-      mode: candidate.mode,
-      before: candidate.before,
-      after: candidate.after,
-    } as ManualSyncRequest,
-  };
+  return Response.redirect(target, 303);
 }
