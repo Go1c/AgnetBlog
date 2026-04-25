@@ -37,7 +37,7 @@ https://blog.lumio.games/admin
 7. 重新部署 Web 服务。
 8. 打开 `/admin`，用 GitHub 登录。
 9. 进入 `/admin/setup`，按页面检查配置。
-10. 进入 `/admin/sync-jobs` 或调用同步接口跑一次全量同步。
+10. 让笔记仓库 push 一次触发 webhook，或调用同步接口跑一次全量同步。
 11. 打开 `/blog`，确认看到的是你笔记仓库里 `content/blog` 的公开文章。
 
 ## Zeabur 构建命令
@@ -201,7 +201,7 @@ Just the push event
 
 配置后，笔记仓库有 push 时，服务器会创建同步任务并尝试同步最新内容。
 
-第一次部署完成后，即使 webhook 已经配置，也建议先手动跑一次全量同步。
+第一次部署完成后，即使 webhook 已经配置，也要让笔记仓库 push 一次，或调用同步接口跑一次全量同步。
 否则数据库里还没有你的笔记，`/blog` 会显示为空。
 
 ## 笔记仓库内容怎么放
@@ -409,6 +409,12 @@ AI_TOKEN_PEPPER=<随机长字符串>
 5. frontmatter 里是 `contentType: blog`、`visibility: public`、`published: true`。
 
 如果 `/admin/content` 能看到内容但 `/blog` 没有，通常是文章仍是 `private`、`unlisted` 或 `published: false`。
+
+触发同步有两种方式：
+
+- 最简单：改动笔记仓库任意 Markdown 文件并 push，让 GitHub webhook 自动触发。
+- 用接口：登录后台后，在同域页面的浏览器控制台执行
+  `fetch('/api/admin/sync', { method: 'POST' }).then(r => r.json()).then(console.log)`。
 
 ## 重要页面和接口
 
