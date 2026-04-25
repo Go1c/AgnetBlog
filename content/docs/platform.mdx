@@ -1,0 +1,25 @@
+---
+title: Platform Shape
+description: The high-level shape of the blog and docs platform.
+summary: The high-level shape of the blog and docs platform.
+contentType: docs
+visibility: public
+published: true
+tags:
+  - architecture
+---
+
+## Runtime
+
+Next.js owns the public site, admin pages, webhook handlers, and API endpoints.
+
+## Content
+
+Fumadocs owns MDX collection loading and docs rendering. The source-of-truth content
+will remain in the GitHub notes repository.
+
+## Control plane
+
+PostgreSQL and Prisma will store derived indexes, sync jobs, permissions, AI tokens,
+and audit logs.
+

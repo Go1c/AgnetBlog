@@ -1,0 +1,26 @@
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+
+:root {
+  --site-bg: #f7f2e8;
+  --site-ink: #211b16;
+  --site-muted: #6d6258;
+  --site-accent: #0f766e;
+}
+
+html {
+  background: var(--site-bg);
+}
+
+body {
+  color: var(--site-ink);
+  background:
+    radial-gradient(circle at top left, rgba(15, 118, 110, 0.16), transparent 30rem),
+    linear-gradient(180deg, #fffaf0 0%, var(--site-bg) 48%, #efe4d1 100%);
+}
+
+a {
+  text-underline-offset: 4px;
+}
+
