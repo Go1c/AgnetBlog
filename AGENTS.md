@@ -42,3 +42,5 @@ Pull requests should include a short summary, verification commands, linked issu
 ## Agent-Specific Instructions
 
 Use `.worktrees/` for parallel Agent work. Each Agent must own a disjoint file set, follow its plan in `devDoc/plans/`, and avoid reverting changes made by other Agents.
+
+Never push to `main` unless the user explicitly says to push to `main`, deploy, release, or go online in the current task. For UI or design work, implement on a branch or local workspace first, provide a preview plus verification results, and wait for the user's explicit test/acceptance approval before pushing to `main`. If a design source such as Figma cannot be accessed, stop and ask for screenshots, exports, or accessible design details instead of inventing a replacement.
