@@ -7,8 +7,8 @@ import {
 } from '@/lib/content/visibility';
 
 export const metadata = {
-  title: 'Blog',
-  description: 'Public blog posts published from Markdown.',
+  title: '博客',
+  description: '从 Markdown 发布的公开博客文章。',
 };
 
 export default function BlogIndexPage() {
@@ -25,10 +25,10 @@ export default function BlogIndexPage() {
     <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-14">
       <div className="mb-10">
         <p className="text-sm font-semibold uppercase tracking-[0.24em] text-teal-700">
-          Blog
+          博客
         </p>
         <h1 className="mt-3 text-4xl font-black tracking-tight text-stone-950 md:text-5xl">
-          Public notes
+          公开笔记
         </h1>
       </div>
       <div className="grid gap-5">
@@ -51,7 +51,7 @@ export default function BlogIndexPage() {
       </div>
       {posts.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-stone-900/20 bg-white/60 p-6 text-stone-600">
-          No public blog posts yet.
+          还没有公开博客。
         </p>
       ) : null}
     </main>

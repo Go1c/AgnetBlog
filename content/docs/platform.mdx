@@ -1,25 +1,22 @@
 ---
-title: Platform Shape
-description: The high-level shape of the blog and docs platform.
-summary: The high-level shape of the blog and docs platform.
+title: 平台结构
+description: 博客和文档平台的整体结构。
+summary: 博客和文档平台的整体结构。
 contentType: docs
 visibility: public
 published: true
 tags:
-  - architecture
+  - 架构
 ---
 
-## Runtime
+## 运行时
 
-Next.js owns the public site, admin pages, webhook handlers, and API endpoints.
+Next.js 负责公开站点、后台页面、Webhook 处理和 API 路由。
 
-## Content
+## 内容
 
-Fumadocs owns MDX collection loading and docs rendering. The source-of-truth content
-will remain in the GitHub notes repository.
+Fumadocs 负责加载 MDX 集合并渲染文档。真实内容仍以 GitHub 笔记仓库为准。
 
-## Control plane
+## 控制后台
 
-PostgreSQL and Prisma will store derived indexes, sync jobs, permissions, AI tokens,
-and audit logs.
-
+PostgreSQL 和 Prisma 保存派生索引、同步任务、权限、AI 令牌和审计日志。

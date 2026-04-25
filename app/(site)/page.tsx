@@ -6,43 +6,42 @@ export default function HomePage() {
       <section className="grid gap-10 rounded-[2rem] border border-stone-900/10 bg-white/70 p-8 shadow-2xl shadow-stone-900/5 backdrop-blur md:grid-cols-[1.2fr_0.8fr] md:p-12">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.28em] text-teal-700">
-            Markdown-first publishing
+            Markdown 优先发布
           </p>
           <h1 className="mt-5 max-w-3xl text-5xl font-black tracking-tight text-stone-950 md:text-7xl">
-            Personal notes with a real control plane.
+            个人笔记，也要有真正的后台。
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-stone-700">
-            AgnetBlog is a Next.js + Fumadocs baseline for publishing local notes as a
-            blog and docs site, while leaving room for admin permissions, GitHub sync,
-            audit logs, and AI-managed metadata.
+            AgnetBlog 用 Next.js 和 Fumadocs 发布你的 Markdown 笔记，同时保留后台权限、
+            GitHub 同步、审计日志和 Agent 可用的管理接口。
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/blog"
               className="rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800"
             >
-              View blog
+              查看博客
             </Link>
             <Link
               href="/docs"
               className="rounded-full border border-stone-950/15 bg-white px-5 py-3 text-sm font-semibold text-stone-950 transition hover:border-stone-950/40"
             >
-              Read docs
+              阅读文档
             </Link>
             <Link
               href="/search"
               className="rounded-full border border-stone-950/15 bg-white px-5 py-3 text-sm font-semibold text-stone-950 transition hover:border-stone-950/40"
             >
-              Search
+              搜索
             </Link>
           </div>
         </div>
         <div className="rounded-[1.5rem] bg-stone-950 p-6 text-stone-100">
-          <p className="text-sm font-medium text-teal-200">v1 foundation</p>
+          <p className="text-sm font-medium text-teal-200">当前能力</p>
           <ul className="mt-6 space-y-4 text-sm leading-6 text-stone-300">
-            <li>Next.js App Router as the only runtime.</li>
-            <li>Fumadocs MDX for docs and blog content collections.</li>
-            <li>PostgreSQL/Prisma, GitHub sync, admin, and AI APIs planned next.</li>
+            <li>前台、后台和 API 都运行在同一个 Next.js 应用里。</li>
+            <li>博客和文档都从 Markdown / MDX 内容生成。</li>
+            <li>支持 PostgreSQL、GitHub 同步、后台管理和 Agent API。</li>
           </ul>
         </div>
       </section>

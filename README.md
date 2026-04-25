@@ -1,43 +1,42 @@
 # AgnetBlog
 
-AgnetBlog is a personal Markdown-first publishing platform built with Next.js App
-Router, Fumadocs, Prisma, GitHub sync, and scoped AI APIs.
+AgnetBlog 是一个 Markdown 优先的个人发布平台。它使用 Next.js App Router、
+Fumadocs、Prisma、GitHub 同步和带权限范围的 Agent API。
 
-## Stack
+## 技术栈
 
-- Next.js App Router for pages, admin, webhooks, and APIs.
-- Fumadocs MDX and Fumadocs UI for docs and blog content rendering.
-- PostgreSQL and Prisma store derived indexes, sync jobs, permissions, AI token
-  hashes, and audit logs.
-- GitHub remains the source of truth for notes content.
-- Admin routes use GitHub OAuth with an allowlist.
-- AI routes use scoped bearer tokens.
+- Next.js App Router 负责前台页面、后台页面、Webhook 和 API。
+- Fumadocs MDX 负责博客和文档内容渲染。
+- PostgreSQL 和 Prisma 保存内容索引、同步任务、权限、AI 令牌 hash 和审计日志。
+- GitHub 笔记仓库是内容源头。
+- 后台使用 GitHub OAuth 登录，并通过白名单控制访问。
+- Agent API 使用独立 Bearer token，不复用后台登录会话。
 
-## Local Development
+## 本地开发
 
-Install dependencies:
+安装依赖：
 
 ```powershell
 npm.cmd install
 ```
 
-Copy `.env.example` to `.env.local` and fill in the values needed for the flows
-you want to run. At minimum, Prisma commands need `DATABASE_URL`.
+复制 `.env.example` 为 `.env.local`，然后填入你要使用的配置。至少 Prisma 命令需要
+`DATABASE_URL`。
 
-Generate Fumadocs and Prisma outputs after dependency, schema, or content changes:
+依赖、schema 或内容变化后，重新生成 Fumadocs 和 Prisma 输出：
 
 ```powershell
 npx.cmd fumadocs-mdx
 npm.cmd run db:generate
 ```
 
-Run the dev server:
+启动开发服务器：
 
 ```powershell
 npm.cmd run dev
 ```
 
-Useful checks:
+常用检查：
 
 ```powershell
 npm.cmd run typecheck
@@ -46,59 +45,85 @@ npm.cmd run build
 npm.cmd test
 ```
 
-PowerShell may block `npm.ps1` on this machine. Use `npm.cmd` explicitly.
+这台 Windows 机器可能会阻止 `npm.ps1`，所以 PowerShell 里统一使用 `npm.cmd`。
+Zeabur 和 Linux shell 使用普通 `npm`。
 
-## Important Routes
+## 重要页面
 
-- `/` public landing page
-- `/blog` blog index
-- `/blog/hello-world` sample blog post
-- `/docs` Fumadocs docs home
-- `/admin` admin scaffold
-- `/admin/content` Git-backed metadata editing
-- `/admin/ai-tokens` scoped AI token issuance and revocation
-- `/api/health` healthcheck
-- `/api/search` Fumadocs docs search endpoint
-- `/api/webhooks/github` GitHub push webhook
-- `/api/ai/content` AI content list
-- `/api/ai/content/[id]` AI content detail and metadata writeback
-- `/api/ai/search` AI search
-- `/api/ai/sync` AI sync trigger
-- `/api/ai/sync-jobs` AI sync job list
-- `/api/ai/audit-logs` AI audit log inspection
+- `/` 首页
+- `/blog` 博客列表
+- `/blog/hello-world` 示例博客
+- `/docs` 文档首页
+- `/admin` 后台概览
+- `/admin/content` 内容元数据管理
+- `/admin/setup` 中文配置说明
+- `/admin/ai-tokens` AI 令牌创建和撤销
+- `/api/health` 健康检查
+- `/api/search` 公开搜索接口
+- `/api/webhooks/github` GitHub Webhook
+- `/api/ai/content` Agent 内容列表
+- `/api/ai/content/[id]` Agent 内容详情和元数据写回
+- `/api/ai/search` Agent 搜索
+- `/api/ai/sync` Agent 同步触发
+- `/api/ai/sync-jobs` Agent 同步任务列表
+- `/api/ai/audit-logs` Agent 审计日志查看
 
-## Environment Overview
+## 中文配置速查
 
-Required environment groups:
+Zeabur Web 服务必须先配置这些变量：
 
-- Database: `DATABASE_URL`
-- Auth: `AUTH_SECRET`, `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`,
-  `ADMIN_GITHUB_LOGINS`
-- GitHub sync: `GITHUB_NOTES_OWNER`, `GITHUB_NOTES_REPO`,
-  `GITHUB_NOTES_BRANCH`, `GITHUB_WRITE_TOKEN`, `GITHUB_WEBHOOK_SECRET`
-- AI API: `AI_TOKEN_PEPPER`
-- Public URLs and scheduling: `NEXT_PUBLIC_SITE_URL`, `SYNC_RECONCILE_CRON`
+| 变量 | 说明 |
+| --- | --- |
+| `DATABASE_URL` | PostgreSQL 连接串。Zeabur 可填 `${POSTGRES_CONNECTION_STRING}`。 |
+| `AUTH_SECRET` | NextAuth 会话签名密钥。生产环境必须是随机长字符串。 |
+| `AUTH_GITHUB_ID` | GitHub OAuth App 的 Client ID。 |
+| `AUTH_GITHUB_SECRET` | GitHub OAuth App 的 Client Secret。 |
+| `ADMIN_GITHUB_LOGINS` | 允许进入后台的 GitHub 用户名，多个用户名用逗号分隔。 |
+| `NEXTAUTH_URL` | 线上地址，例如 `https://blog.lumio.games`。 |
+| `NEXT_PUBLIC_SITE_URL` | 公开站点地址，例如 `https://blog.lumio.games`。 |
 
-See `.env.example` for the current list.
+GitHub 同步需要这些变量：
 
-## Parallel Agent Worktrees
+| 变量 | 说明 |
+| --- | --- |
+| `GITHUB_NOTES_OWNER` | 笔记仓库 owner，例如 `Go1c`。 |
+| `GITHUB_NOTES_REPO` | 笔记仓库名，例如 `notes`。 |
+| `GITHUB_NOTES_BRANCH` | 笔记仓库分支，通常是 `main`。 |
+| `GITHUB_WRITE_TOKEN` | 可读写笔记仓库内容的 GitHub fine-grained token。 |
+| `GITHUB_WEBHOOK_SECRET` | GitHub Webhook 签名密钥。 |
 
-Use project-local worktrees under `.worktrees/`. The directory is ignored by Git.
+Agent API 建议配置：
 
-Example:
+| 变量 | 说明 |
+| --- | --- |
+| `AI_TOKEN_PEPPER` | AI 令牌 hash 密钥。不是 OpenAI Key，也不是 URL。 |
+| `SYNC_RECONCILE_CRON` | 定时同步表达式，例如 `*/15 * * * *`。 |
+
+GitHub OAuth App 的回调地址必须是：
+
+```text
+https://blog.lumio.games/api/auth/callback/github
+```
+
+第一次连接 PostgreSQL 后，需要在 Zeabur Web 服务 Shell 里运行：
+
+```bash
+npx prisma db push
+```
+
+## 并行开发
+
+并行 Agent 工作请使用项目内 `.worktrees/`，该目录已被 Git 忽略。
+
+示例：
 
 ```powershell
 git worktree add .worktrees/agent-sync -b agent/sync-pipeline
 ```
 
-Each Agent should own a disjoint file set and merge back through review.
+每个 Agent 必须拥有互不重叠的文件范围，并通过 review 合并。
 
-## Deployment And Operations
+## 部署与运维
 
-- Zeabur deployment runbook:
-  `devDoc/2026-04-25-zeabur-deploy-runbook.md`
-- Testing strategy:
-  `devDoc/2026-04-25-testing-strategy.md`
-
-Use `npm.cmd` in PowerShell. Zeabur and Linux shells should use plain `npm`.
-
+- Zeabur 中文部署说明：`devDoc/2026-04-25-zeabur-deploy-runbook.md`
+- 测试策略：`devDoc/2026-04-25-testing-strategy.md`

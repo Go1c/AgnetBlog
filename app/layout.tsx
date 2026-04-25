@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     default: 'AgnetBlog',
     template: '%s | AgnetBlog',
   },
-  description: 'Personal notes, blog posts, and docs published from Markdown.',
+  description: '用 Markdown 发布个人笔记、博客和文档。',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -21,4 +21,3 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     </html>
   );
 }
-

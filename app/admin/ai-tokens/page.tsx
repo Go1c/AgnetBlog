@@ -17,7 +17,7 @@ import {
 } from './token-creation-form';
 
 export const metadata = {
-  title: 'Admin AI Tokens',
+  title: '后台 AI 令牌',
 };
 
 type AdminAiTokensPageProps = {
@@ -34,19 +34,19 @@ export default async function AdminAiTokensPage({ searchParams }: AdminAiTokensP
       <div className="rounded-lg border border-stone-900/10 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
           <div>
-            <h2 className="text-xl font-bold text-stone-950">AI tokens</h2>
+            <h2 className="text-xl font-bold text-stone-950">AI 令牌</h2>
             <p className="mt-2 text-sm text-stone-600">
-              Issue scoped bearer tokens for AI content, sync, and audit APIs.
+              发放带权限范围的 Bearer token，供 Agent 调用内容、同步和审计 API。
             </p>
           </div>
           <div className="text-sm font-medium text-stone-600">
-            {tokens.length} issued
+            已发放 {tokens.length} 个
           </div>
         </div>
 
         {error ? (
           <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
-            Token action failed: {formatStatus(error)}
+            令牌操作失败：{formatStatus(error)}
           </div>
         ) : null}
 
@@ -55,13 +55,13 @@ export default async function AdminAiTokensPage({ searchParams }: AdminAiTokensP
 
       <div className="overflow-hidden rounded-lg border border-stone-900/10 bg-white shadow-sm">
         <div className="grid grid-cols-[minmax(0,1fr)_minmax(180px,1.4fr)_160px_110px] gap-3 border-b border-stone-900/10 bg-stone-50 px-4 py-2 text-xs font-bold uppercase tracking-wide text-stone-500">
-          <span>Name</span>
-          <span>Scopes</span>
-          <span>Last used</span>
-          <span>Action</span>
+          <span>名称</span>
+          <span>权限范围</span>
+          <span>最近使用</span>
+          <span>操作</span>
         </div>
         {tokens.length === 0 ? (
-          <p className="px-4 py-6 text-sm text-stone-600">No AI tokens have been issued.</p>
+          <p className="px-4 py-6 text-sm text-stone-600">还没有发放 AI 令牌。</p>
         ) : (
           tokens.map((token) => (
             <div
@@ -73,7 +73,7 @@ export default async function AdminAiTokensPage({ searchParams }: AdminAiTokensP
                   {token.name}
                 </div>
                 <div className="mt-1 text-xs text-stone-500">
-                  {token.revokedAt ? `Revoked ${formatDate(token.revokedAt)}` : `Created ${formatDate(token.createdAt)}`}
+                  {token.revokedAt ? `已撤销：${formatDate(token.revokedAt)}` : `创建于：${formatDate(token.createdAt)}`}
                 </div>
               </div>
               <div className="flex flex-wrap gap-1">
@@ -87,7 +87,7 @@ export default async function AdminAiTokensPage({ searchParams }: AdminAiTokensP
                 ))}
               </div>
               <div className="text-sm text-stone-600">
-                {token.lastUsedAt ? formatDate(token.lastUsedAt) : 'Never'}
+                {token.lastUsedAt ? formatDate(token.lastUsedAt) : '从未使用'}
               </div>
               <form action={revokeTokenAction}>
                 <input name="id" type="hidden" value={token.id} />
@@ -96,7 +96,7 @@ export default async function AdminAiTokensPage({ searchParams }: AdminAiTokensP
                   disabled={Boolean(token.revokedAt)}
                   type="submit"
                 >
-                  Revoke
+                  撤销
                 </button>
               </form>
             </div>

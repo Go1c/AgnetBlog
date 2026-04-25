@@ -1,19 +1,19 @@
-# Zeabur Deploy Runbook
+# Zeabur 中文部署说明
 
-This runbook covers the current Next.js, Prisma, GitHub sync, admin, and AI API stack.
+这份说明覆盖当前 Next.js、Prisma、GitHub 同步、后台和 Agent API 的部署配置。
 
-## Services
+## 服务
 
-Create two Zeabur services:
+在 Zeabur 项目里创建两个服务：
 
-- A Node.js web service for the Next.js app.
-- A PostgreSQL service for Prisma.
+- Node.js Web 服务：运行 Next.js 应用。
+- PostgreSQL 服务：保存内容索引、同步任务、AI 令牌和审计日志。
 
-Use Node.js 20 or newer. The app reads all runtime configuration from environment variables.
+Node.js 使用 20 或更新版本。应用的运行时配置全部来自环境变量。
 
-## Build And Start
+## 构建和启动
 
-Use these commands in Zeabur:
+Zeabur Web 服务使用这些命令：
 
 ```bash
 npm install
@@ -22,114 +22,132 @@ npm run build
 npm run start
 ```
 
-Run the database schema push once before the first production start, and again after schema changes:
+第一次上线前，以及 Prisma schema 变化后，需要运行一次：
 
 ```bash
 npx prisma db push
 ```
 
-This repository does not yet contain Prisma migration files. Treat `prisma/schema.prisma` as the deploy schema until migrations are added.
+当前仓库还没有 Prisma migration 文件，部署时以 `prisma/schema.prisma` 为准。
 
-## Environment Variables
+## 环境变量
 
-Set these variables on the web service:
+在 Zeabur Web 服务里配置这些变量：
 
-| Variable | Purpose |
+| 变量 | 作用 |
 | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | Public site origin, for example `https://blog.example.com`. |
-| `DATABASE_URL` | PostgreSQL connection string from the Zeabur PostgreSQL service. |
-| `AUTH_SECRET` | NextAuth signing secret. Generate a long random value. |
-| `AUTH_GITHUB_ID` | GitHub OAuth app client ID. |
-| `AUTH_GITHUB_SECRET` | GitHub OAuth app client secret. |
-| `ADMIN_GITHUB_LOGINS` | Comma or whitespace separated allowlist of GitHub logins. |
-| `GITHUB_NOTES_OWNER` | GitHub owner for the source notes repository. |
-| `GITHUB_NOTES_REPO` | GitHub repository name for source notes. |
-| `GITHUB_NOTES_BRANCH` | Source branch. Defaults to `main`. |
-| `GITHUB_WRITE_TOKEN` | Token used for GitHub read, sync, and metadata writeback. |
-| `GITHUB_WEBHOOK_SECRET` | Shared secret for GitHub push webhooks. |
-| `AI_TOKEN_PEPPER` | Secret pepper for hashing AI bearer tokens. |
-| `SYNC_RECONCILE_CRON` | Desired reconciliation schedule. Use it to configure Zeabur or external cron. |
+| `NEXT_PUBLIC_SITE_URL` | 公开站点地址，例如 `https://blog.lumio.games`。 |
+| `NEXTAUTH_URL` | NextAuth 登录回调使用的站点地址，例如 `https://blog.lumio.games`。 |
+| `DATABASE_URL` | PostgreSQL 连接串。Zeabur 可填 `${POSTGRES_CONNECTION_STRING}`。 |
+| `AUTH_SECRET` | NextAuth 会话签名密钥。用随机长字符串。 |
+| `AUTH_GITHUB_ID` | GitHub OAuth App 的 Client ID。 |
+| `AUTH_GITHUB_SECRET` | GitHub OAuth App 的 Client Secret。 |
+| `ADMIN_GITHUB_LOGINS` | 后台白名单 GitHub 用户名，多个值用逗号或空格分隔。 |
+| `GITHUB_NOTES_OWNER` | 笔记仓库 owner。 |
+| `GITHUB_NOTES_REPO` | 笔记仓库名称。 |
+| `GITHUB_NOTES_BRANCH` | 笔记仓库分支，默认 `main`。 |
+| `GITHUB_WRITE_TOKEN` | 用于读取、同步和写回元数据的 GitHub token。 |
+| `GITHUB_WEBHOOK_SECRET` | GitHub Webhook 签名密钥。 |
+| `AI_TOKEN_PEPPER` | AI Bearer token 的 hash 密钥。 |
+| `SYNC_RECONCILE_CRON` | 定时全量校准表达式，供 Zeabur 定时任务或外部 cron 使用。 |
 
-Never reuse `AUTH_SECRET`, `GITHUB_WEBHOOK_SECRET`, or `AI_TOKEN_PEPPER` across environments.
+不要在不同环境复用 `AUTH_SECRET`、`GITHUB_WEBHOOK_SECRET` 或 `AI_TOKEN_PEPPER`。
 
-## PostgreSQL Setup
+## PostgreSQL 初始化
 
-1. Create the PostgreSQL service in Zeabur.
-2. Copy its connection string into `DATABASE_URL`.
-3. Run `npx prisma db push` from a Zeabur shell or a trusted deployment step.
-4. Run `npm run db:generate` before building.
+1. 在 Zeabur 创建 PostgreSQL 服务。
+2. 在 Web 服务中设置 `DATABASE_URL=${POSTGRES_CONNECTION_STRING}`。
+3. 进入 Web 服务 Shell，运行 `npx prisma db push`。
+4. 部署时运行 `npm run db:generate` 再运行 `npm run build`。
 
-The database stores derived indexes, sync jobs, AI token hashes, and audit logs. Markdown frontmatter in GitHub remains the source of truth for publishing metadata.
+数据库保存派生索引、同步任务、AI 令牌 hash 和审计日志。Markdown frontmatter 仍是发布元数据的源头。
 
 ## GitHub OAuth
 
-Create a GitHub OAuth app with this callback URL:
+在 GitHub 创建 OAuth App，回调地址填写：
 
 ```text
-https://<your-domain>/api/auth/callback/github
+https://blog.lumio.games/api/auth/callback/github
 ```
 
-Set the OAuth app's client ID and secret in `AUTH_GITHUB_ID` and `AUTH_GITHUB_SECRET`. Add admin GitHub logins to `ADMIN_GITHUB_LOGINS`.
+如果换域名，就把 `blog.lumio.games` 替换为你的域名。
+
+创建后：
+
+- Client ID 填入 `AUTH_GITHUB_ID`。
+- Client Secret 填入 `AUTH_GITHUB_SECRET`。
+- 你的 GitHub 用户名填入 `ADMIN_GITHUB_LOGINS`。
 
 ## GitHub Webhook
 
-Create a webhook on the notes repository:
+在笔记仓库创建 Webhook：
 
-- Payload URL: `https://<your-domain>/api/webhooks/github`
-- Content type: `application/json`
-- Secret: the value of `GITHUB_WEBHOOK_SECRET`
-- Events: `push`
+- Payload URL：`https://blog.lumio.games/api/webhooks/github`
+- Content type：`application/json`
+- Secret：填 `GITHUB_WEBHOOK_SECRET`
+- Events：选择 `push`
 
-The webhook route verifies `x-hub-signature-256`, creates a sync job, and runs incremental sync inline. If GitHub compare output is incomplete, the sync service falls back to reconciliation.
+Webhook 路由会验证 `x-hub-signature-256`，创建同步任务，并尝试内联执行增量同步。
+如果 GitHub compare 输出不完整，系统会回退到全量校准。
 
-## Scheduled Reconciliation
+## 定时全量校准
 
-Use Zeabur scheduled jobs or an external cron service to call the AI sync endpoint:
+使用 Zeabur 定时任务或外部 cron 调用 Agent 同步接口：
 
 ```bash
-curl -X POST https://<your-domain>/api/ai/sync \
-  -H "Authorization: Bearer <ai-token-with-sync:trigger>" \
+curl -X POST https://blog.lumio.games/api/ai/sync \
+  -H "Authorization: Bearer <拥有 sync:trigger 权限的 AI token>" \
   -H "Content-Type: application/json" \
   -d '{"mode":"reconcile"}'
 ```
 
-Create that AI token in `/admin/ai-tokens` with the `sync:trigger` scope. Keep the raw token in the cron provider's secret storage.
+AI token 在 `/admin/ai-tokens` 创建，权限范围选择 `sync:trigger`。原始 token 只显示一次，需要保存到 cron 平台的密钥配置里。
 
-## Healthcheck
+## 健康检查
 
-Use this route for platform health checks:
+平台健康检查：
 
 ```text
 GET /api/health
 ```
 
-Use this route for authenticated admin health checks:
+后台健康检查：
 
 ```text
 GET /api/admin/health
 ```
 
-The admin route requires a valid admin session.
+后台健康检查需要有效管理员登录。
 
-## Manual Resync
+## 手动同步
 
-Admins can trigger sync through:
+管理员可以调用：
 
 ```text
 POST /api/admin/sync
 ```
 
-AI clients can trigger sync through:
+Agent 可以调用：
 
 ```text
 POST /api/ai/sync
 ```
 
-Use `{"mode":"reconcile"}` for a full reconciliation. Use `{"mode":"incremental","before":"<sha>","after":"<sha>"}` for an incremental run.
+全量校准请求体：
 
-## Operational Checks
+```json
+{"mode":"reconcile"}
+```
 
-Run these checks before deploying a branch:
+增量同步请求体：
+
+```json
+{"mode":"incremental","before":"<sha>","after":"<sha>"}
+```
+
+## 上线前检查
+
+部署分支前运行：
 
 ```powershell
 npm.cmd run typecheck
@@ -138,4 +156,4 @@ npm.cmd run build
 npm.cmd test
 ```
 
-Checks that contact GitHub, PostgreSQL, OAuth, or Zeabur require live credentials and should run in a staging environment.
+会访问 GitHub、PostgreSQL、OAuth 或 Zeabur 的检查需要真实凭据，建议在 staging 环境执行。

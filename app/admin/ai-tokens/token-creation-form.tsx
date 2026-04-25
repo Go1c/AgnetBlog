@@ -32,43 +32,43 @@ export function TokenCreationForm({ action }: { action: CreateTokenAction }) {
     <div className="mt-6">
       {!state.ok && state.error ? (
         <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
-          Token action failed: {state.error.replace(/_/g, ' ')}
+          令牌操作失败：{state.error.replace(/_/g, ' ')}
         </div>
       ) : null}
 
       {state.ok && !isTokenHidden ? (
         <div className="mb-4 rounded-md border border-teal-200 bg-teal-50 px-4 py-3 text-sm text-teal-950">
-          <div className="font-semibold">New token for {state.name}</div>
+          <div className="font-semibold">{state.name} 的新令牌</div>
           <code className="mt-2 block break-all rounded border border-teal-200 bg-white px-3 py-2 text-xs text-stone-950">
             {state.token}
           </code>
           <div className="mt-2 text-xs text-teal-900">
-            This value is available only in this browser response and is not stored in plaintext.
+            这个值只会显示一次，数据库不会保存明文。
           </div>
           <button
             className="mt-3 rounded-md border border-teal-700/30 bg-white px-3 py-2 text-sm font-semibold text-teal-900"
             onClick={() => setHiddenToken(state.token)}
             type="button"
           >
-            Hide token
+            隐藏令牌
           </button>
         </div>
       ) : null}
 
       <form action={formAction} className="grid gap-4">
         <label className="grid gap-1 text-sm font-semibold text-stone-900">
-          Token name
+          令牌名称
           <input
             className="rounded-md border border-stone-900/15 px-3 py-2 text-sm font-normal"
             maxLength={120}
             name="name"
-            placeholder="Publishing assistant"
+            placeholder="发布助手"
             required
             type="text"
           />
         </label>
         <fieldset className="grid gap-2">
-          <legend className="text-sm font-semibold text-stone-900">Scopes</legend>
+          <legend className="text-sm font-semibold text-stone-900">权限范围</legend>
           <div className="grid gap-2 md:grid-cols-2">
             {AI_SCOPES.map((scope) => (
               <label
@@ -87,10 +87,10 @@ export function TokenCreationForm({ action }: { action: CreateTokenAction }) {
             disabled={isPending}
             type="submit"
           >
-            {isPending ? 'Creating...' : 'Create token'}
+            {isPending ? '创建中...' : '创建令牌'}
           </button>
         </div>
-        <div className="text-sm font-medium text-stone-600">Format: {aiTokenPrefix}...</div>
+        <div className="text-sm font-medium text-stone-600">格式：{aiTokenPrefix}...</div>
       </form>
     </div>
   );
