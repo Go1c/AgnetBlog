@@ -31,7 +31,12 @@ export async function generateMetadata({ params }: DocsPageProps): Promise<Metad
 }
 
 export function generateStaticParams() {
-  return source.generateParams();
+  return source
+    .getPages()
+    .filter(isDirectlyReadable)
+    .map((page) => ({
+      slug: page.slugs,
+    }));
 }
 
 export default async function Page({ params }: DocsPageProps) {

@@ -29,6 +29,12 @@ export default function HomePage() {
             >
               Read docs
             </Link>
+            <Link
+              href="/search"
+              className="rounded-full border border-stone-950/15 bg-white px-5 py-3 text-sm font-semibold text-stone-950 transition hover:border-stone-950/40"
+            >
+              Search
+            </Link>
           </div>
         </div>
         <div className="rounded-[1.5rem] bg-stone-950 p-6 text-stone-100">

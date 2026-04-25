@@ -2,9 +2,12 @@ import type { Visibility } from './types';
 
 type PublishablePage = {
   data: {
+    title?: string;
     description?: string;
     summary?: string;
     date?: string | Date;
+    updatedAt?: string | Date;
+    tags?: string[];
     visibility?: Visibility;
     published?: boolean;
   };
@@ -34,4 +37,16 @@ export function isDirectlyReadable(page: PublishablePage) {
   const visibility = page.data.visibility ?? 'public';
 
   return page.data.published !== false && visibility !== 'private';
+}
+
+export function isPublicSearchable(page: PublishablePage) {
+  return isPublicListable(page);
+}
+
+export function isSitemapEligible(page: PublishablePage) {
+  return isPublicListable(page);
+}
+
+export function isRssEligible(page: PublishablePage) {
+  return isPublicListable(page);
 }
