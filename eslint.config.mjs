@@ -5,9 +5,8 @@ const eslintConfig = [
   ...nextVitals,
   ...nextTs,
   {
-    ignores: ['.next/**', '.source/**', 'node_modules/**'],
+    ignores: ['.next/**', '.source/**', '.worktrees/**', 'node_modules/**'],
   },
 ];
 
 export default eslintConfig;
-
