@@ -325,8 +325,8 @@ export default async function AdminContentPage({ searchParams }: AdminContentPag
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-md border border-stone-900/10">
-            <div className="hidden grid-cols-[44px_minmax(0,1.6fr)_120px_120px_120px_130px_180px] gap-3 border-b border-stone-900/10 bg-stone-50 px-4 py-2 text-xs font-bold uppercase tracking-wide text-stone-500 md:grid">
+          <div className="overflow-x-auto rounded-md border border-stone-900/10">
+            <div className="hidden gap-3 border-b border-stone-900/10 bg-stone-50 px-4 py-2 text-xs font-bold uppercase tracking-wide text-stone-500 md:grid md:min-w-[1120px] md:grid-cols-[44px_minmax(260px,1.6fr)_120px_120px_120px_130px_180px]">
               <span>选择</span>
               <span>标题/来源</span>
               <span>可见性</span>
@@ -343,7 +343,7 @@ export default async function AdminContentPage({ searchParams }: AdminContentPag
               items.map((item) => (
                 <form
                   action={`/api/admin/content/${encodeURIComponent(item.id)}/metadata`}
-                  className="grid gap-3 border-b border-stone-900/10 px-4 py-3 last:border-b-0 md:grid-cols-[44px_minmax(0,1.6fr)_120px_120px_120px_130px_180px] md:items-center"
+                  className="grid gap-3 border-b border-stone-900/10 px-4 py-3 last:border-b-0 md:min-w-[1120px] md:grid-cols-[44px_minmax(260px,1.6fr)_120px_120px_120px_130px_180px] md:items-center"
                   key={item.id}
                   method="post"
                 >

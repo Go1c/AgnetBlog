@@ -31,6 +31,8 @@ describe('admin content management', () => {
     expect(listPage).toContain('name="contentId"');
     expect(listPage).toContain('批量修改');
     expect(listPage).toContain('批量保存');
+    expect(listPage).toContain('min-w-[1120px]');
+    expect(listPage).toContain('minmax(260px,1.6fr)');
   });
 
   it('adds a detail page for full body review and permission management', () => {

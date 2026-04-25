@@ -14,8 +14,18 @@ describe('runtime public docs source', () => {
     const docsPage = read('app/(site)/docs/[[...slug]]/page.tsx');
 
     expect(docsPage).toContain('findReadableContentItemByTypeAndSlug');
+    expect(docsPage).toContain('listPublicContentItems');
     expect(docsPage).toContain('routeSlugSegmentsToContentSlug');
+    expect(docsPage).toContain('runtimeContentUrl');
     expect(docsPage).toContain('MarkdownRenderer');
     expect(docsPage).toContain('ContentType.DOCS');
+  });
+
+  it('lists runtime public docs on the docs index so published docs are discoverable', () => {
+    const docsPage = read('app/(site)/docs/[[...slug]]/page.tsx');
+
+    expect(docsPage).toContain('RuntimeDocsList');
+    expect(docsPage).toContain('公开文档');
+    expect(docsPage).toContain('slug.length === 0');
   });
 });
