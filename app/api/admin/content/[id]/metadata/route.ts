@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { buildMetadataRedirectLocation, safeAdminReturnPath } from '@/lib/admin/metadata-redirect';
 import { recordAuditEvent } from '@/lib/audit/audit-service';
 import { withAdminRoute } from '@/lib/auth/admin';
 import { findContentItemById } from '@/lib/db/content-repository';
@@ -39,11 +40,13 @@ type ParsedMetadataRequest =
       ok: true;
       patch: Record<string, unknown>;
       wantsHtml: boolean;
+      returnTo?: string;
     }
   | {
       ok: false;
       error: string;
       wantsHtml: boolean;
+      returnTo?: string;
       details?: unknown;
     };
 
@@ -60,12 +63,12 @@ async function handleMetadataWrite(request: Request, context: RouteContext) {
     const { id } = await context.params;
     const parsed = await parseMetadataRequest(adminRequest);
     if (!parsed.ok) {
-      return respondError(parsed.error, 400, parsed.wantsHtml, adminRequest.url, parsed.details);
+      return respondError(parsed.error, 400, parsed.wantsHtml, parsed.returnTo, parsed.details);
     }
 
     const content = await findContentItemById(id);
     if (!content) {
-      return respondError('content_not_found', 404, parsed.wantsHtml, adminRequest.url);
+      return respondError('content_not_found', 404, parsed.wantsHtml, parsed.returnTo);
     }
 
     const writeback = await writebackFrontmatterPatch({
@@ -81,7 +84,7 @@ async function handleMetadataWrite(request: Request, context: RouteContext) {
         writeback.error.code,
         statusForWritebackError(writeback.error.code, writeback.error.status),
         parsed.wantsHtml,
-        adminRequest.url,
+        parsed.returnTo,
         {
           message: writeback.error.message,
           details: writeback.error.details,
@@ -109,13 +112,11 @@ async function handleMetadataWrite(request: Request, context: RouteContext) {
 
     if (parsed.wantsHtml) {
       const statusParam = audit.ok ? 'updated' : 'audit_failed';
-      return Response.redirect(
-        new URL(
-          `/admin/content?${statusParam}=${encodeURIComponent(content.id)}&job=${encodeURIComponent(sync.jobId)}`,
-          adminRequest.url,
-        ),
-        303,
-      );
+      return redirectToAdminPage(parsed.returnTo, {
+        statusParam,
+        contentId: content.id,
+        jobId: sync.jobId,
+      });
     }
 
     return Response.json({
@@ -168,20 +169,37 @@ async function parseMetadataRequest(request: Request): Promise<ParsedMetadataReq
 
   if (contentType.includes('application/x-www-form-urlencoded')) {
     const formData = await request.formData();
+    const rawReturnTo = formData.get('returnTo');
+    const returnTo = typeof rawReturnTo === 'string' ? safeAdminReturnPath(rawReturnTo) : undefined;
     const candidate: Record<string, unknown> = {};
 
     for (const [key, value] of formData.entries()) {
-      if (typeof value !== 'string' || value.trim().length === 0) {
+      if (key === 'returnTo') {
+        continue;
+      }
+
+      if (typeof value !== 'string') {
+        continue;
+      }
+
+      const trimmedValue = value.trim();
+      if (key === 'summary' || key === 'tags') {
+        candidate[key] = trimmedValue;
+        continue;
+      }
+
+      if (trimmedValue.length === 0) {
         continue;
       }
 
       if (key === 'published') {
-        const parsedBoolean = parseFormBoolean(value);
+        const parsedBoolean = parseFormBoolean(trimmedValue);
         if (!parsedBoolean.ok) {
           return {
             ok: false,
             error: 'invalid_metadata',
             wantsHtml,
+            returnTo,
           };
         }
 
@@ -189,10 +207,10 @@ async function parseMetadataRequest(request: Request): Promise<ParsedMetadataReq
         continue;
       }
 
-      candidate[key] = value.trim();
+      candidate[key] = trimmedValue;
     }
 
-    return parsePatch(normalizeFormPatch(candidate), wantsHtml);
+    return withReturnTo(parsePatch(normalizeFormPatch(candidate), wantsHtml), returnTo);
   }
 
   return {
@@ -233,6 +251,13 @@ function parsePatch(body: unknown, wantsHtml: boolean): ParsedMetadataRequest {
     ok: true,
     patch: parsed.data,
     wantsHtml,
+  };
+}
+
+function withReturnTo(result: ParsedMetadataRequest, returnTo: string | undefined) {
+  return {
+    ...result,
+    returnTo,
   };
 }
 
@@ -387,14 +412,11 @@ function respondError(
   error: string,
   status: number,
   wantsHtml: boolean,
-  requestUrl: string,
+  returnTo?: string,
   details?: unknown,
 ) {
   if (wantsHtml) {
-    return Response.redirect(
-      new URL(`/admin/content?error=${encodeURIComponent(error)}`, requestUrl),
-      303,
-    );
+    return redirectToAdminPage(returnTo, { error });
   }
 
   return Response.json(
@@ -405,6 +427,20 @@ function respondError(
     },
     { status },
   );
+}
+
+function redirectToAdminPage(
+  returnTo: string | undefined,
+  result:
+    | { error: string }
+    | { statusParam: 'updated' | 'audit_failed'; contentId: string; jobId?: string },
+) {
+  return new Response(null, {
+    status: 303,
+    headers: {
+      Location: buildMetadataRedirectLocation(returnTo, result),
+    },
+  });
 }
 
 function statusForWritebackError(code: GitHubWritebackErrorCode, githubStatus?: number) {
