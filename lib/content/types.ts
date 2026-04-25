@@ -53,6 +53,15 @@ export type EffectiveContentMetadata = PublishFrontmatter & {
 export type IngestFileInput = {
   path: string;
   content: string;
+  relativePath?: string;
+};
+
+export type IngestSourceRoots =
+  | string
+  | Partial<Record<ContentType, string>>;
+
+export type IngestOptions = {
+  sourceRoot?: IngestSourceRoots;
 };
 
 export type IngestSuccess = {

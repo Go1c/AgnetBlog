@@ -1,12 +1,13 @@
 import { validateFrontmatter, parseFrontmatterBlock } from './frontmatter';
 import { resolveTitleFallback, stripFrontmatter } from './markdown';
 import { resolveDirectoryPolicy } from './policy';
-import { normalizeSlug } from './slug';
+import { normalizeSlug, resolveSlugSourcePath } from './slug';
 import type {
   ContentPipelineIssue,
   DirectoryPolicyInput,
   EffectiveContentMetadata,
   IngestFileInput,
+  IngestOptions,
   IngestResult,
   PublishFrontmatter,
 } from './types';
@@ -14,8 +15,9 @@ import type {
 export function ingestContentFiles(
   files: IngestFileInput[],
   policies: DirectoryPolicyInput[] = [],
+  options: IngestOptions = {},
 ): IngestResult {
-  assertValidArguments(files, policies);
+  assertValidArguments(files, policies, options);
 
   const result: IngestResult = {
     successes: [],
@@ -43,7 +45,7 @@ export function ingestContentFiles(
       continue;
     }
 
-    const effective = toEffectiveMetadata(policy.metadata, file);
+    const effective = toEffectiveMetadata(policy.metadata, file, options);
     if (!effective.success) {
       result.failures.push({
         path: file.path,
@@ -65,6 +67,7 @@ export function ingestContentFiles(
 function toEffectiveMetadata(
   metadata: PublishFrontmatter,
   file: IngestFileInput,
+  options: IngestOptions,
 ):
   | { success: true; metadata: EffectiveContentMetadata }
   | { success: false; errors: ContentPipelineIssue[] } {
@@ -105,6 +108,22 @@ function toEffectiveMetadata(
     };
   }
 
+  const slug = metadata.slug
+    ? normalizeSlug(metadata.slug, file.path)
+    : resolveSlugSourcePath({
+        path: file.path,
+        relativePath: file.relativePath,
+        contentType,
+        sourceRoot: options.sourceRoot,
+      });
+
+  if (!slug.success) {
+    return {
+      success: false,
+      errors: withPath(slug.errors, file.path),
+    };
+  }
+
   return {
     success: true,
     metadata: {
@@ -113,7 +132,7 @@ function toEffectiveMetadata(
       visibility,
       published: metadata.published ?? true,
       tags: metadata.tags ?? [],
-      slug: normalizeSlug(metadata.slug, file.path),
+      slug: slug.slug,
       title: resolveTitleFallback({
         frontmatterTitle: metadata.title,
         markdown: file.content,
@@ -130,7 +149,11 @@ function withPath(errors: ContentPipelineIssue[], path: string) {
   }));
 }
 
-function assertValidArguments(files: IngestFileInput[], policies: DirectoryPolicyInput[]) {
+function assertValidArguments(
+  files: IngestFileInput[],
+  policies: DirectoryPolicyInput[],
+  options: IngestOptions,
+) {
   if (!Array.isArray(files)) {
     throw new TypeError('files must be an array.');
   }
@@ -139,9 +162,17 @@ function assertValidArguments(files: IngestFileInput[], policies: DirectoryPolic
     throw new TypeError('policies must be an array.');
   }
 
+  if (!options || typeof options !== 'object') {
+    throw new TypeError('options must be an object.');
+  }
+
   for (const file of files) {
     if (!file || typeof file.path !== 'string' || typeof file.content !== 'string') {
       throw new TypeError('Each ingest file must include string path and content fields.');
+    }
+
+    if (file.relativePath !== undefined && typeof file.relativePath !== 'string') {
+      throw new TypeError('relativePath must be a string when provided.');
     }
   }
 }

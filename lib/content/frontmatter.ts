@@ -24,11 +24,11 @@ const frontmatterDateSchema = z.preprocess((value) => {
 
   if (typeof value === 'string') {
     const trimmed = value.trim();
-    return trimmed.length > 0 ? normalizeDate(trimmed) : trimmed;
+    return trimmed.length > 0 ? trimmed : trimmed;
   }
 
   return value;
-}, z.string().regex(/^\d{4}-\d{2}-\d{2}$/));
+}, z.string().date());
 
 export const publishFrontmatterSchema = z.object({
   title: z.string().trim().min(1).optional(),
@@ -76,20 +76,35 @@ export function parseFrontmatterBlock(markdown: string): Record<string, unknown>
 
 function normalizeDate(value: Date | string) {
   if (value instanceof Date) {
-    return Number.isNaN(value.getTime()) ? '' : value.toISOString().slice(0, 10);
+    if (Number.isNaN(value.getTime())) {
+      return '';
+    }
+
+    if (
+      value.getUTCHours() === 0 &&
+      value.getUTCMinutes() === 0 &&
+      value.getUTCSeconds() === 0 &&
+      value.getUTCMilliseconds() === 0
+    ) {
+      return [
+        value.getUTCFullYear(),
+        padDatePart(value.getUTCMonth() + 1),
+        padDatePart(value.getUTCDate()),
+      ].join('-');
+    }
+
+    return [
+      value.getFullYear(),
+      padDatePart(value.getMonth() + 1),
+      padDatePart(value.getDate()),
+    ].join('-');
   }
 
-  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    return isValidDateOnly(value) ? value : '';
-  }
-
-  const parsed = new Date(value);
-  return Number.isNaN(parsed.getTime()) ? '' : parsed.toISOString().slice(0, 10);
+  return value;
 }
 
-function isValidDateOnly(value: string) {
-  const parsed = new Date(`${value}T00:00:00.000Z`);
-  return parsed.toISOString().slice(0, 10) === value;
+function padDatePart(value: number) {
+  return value.toString().padStart(2, '0');
 }
 
 function parseSimpleYaml(source: string) {
@@ -97,33 +112,43 @@ function parseSimpleYaml(source: string) {
   const lines = source.split(/\r?\n/);
 
   for (let index = 0; index < lines.length; index += 1) {
-    const line = lines[index];
+    const line = lines[index] ?? '';
+    const trimmedLine = stripYamlComment(line).trim();
 
-    if (!line || line.trim().length === 0 || line.trimStart().startsWith('#')) {
+    if (trimmedLine.length === 0) {
       continue;
     }
 
-    const keyValue = line.match(/^([A-Za-z][\w-]*):(?:\s*(.*))?$/);
+    const keyValue = trimmedLine.match(/^([A-Za-z][\w-]*):(?:\s*(.*))?$/);
     if (!keyValue) {
       continue;
     }
 
     const [, key, rawValue = ''] = keyValue;
+    const value = rawValue.trim();
 
-    if (rawValue.trim().length > 0) {
-      data[key] = parseYamlScalar(rawValue.trim());
+    if (value === '|' || value === '>') {
+      const block = readYamlBlock(lines, index + 1);
+      data[key] = value === '|' ? block.lines.join('\n') : foldYamlLines(block.lines);
+      index = block.lastIndex;
+      continue;
+    }
+
+    if (value.length > 0) {
+      data[key] = parseYamlScalar(value);
       continue;
     }
 
     const items: unknown[] = [];
     let cursor = index + 1;
     while (cursor < lines.length) {
-      const item = lines[cursor].match(/^\s*-\s*(.*)$/);
+      const item = lines[cursor]?.match(/^\s*-\s*(.*)$/);
       if (!item) {
         break;
       }
 
-      items.push(parseYamlScalar(item[1].trim()));
+      const itemValue = stripYamlComment(item[1]).trim();
+      items.push(parseYamlScalar(itemValue));
       cursor += 1;
     }
 
@@ -139,7 +164,8 @@ function parseSimpleYaml(source: string) {
 }
 
 function parseYamlScalar(value: string): unknown {
-  const unquoted = stripMatchingQuotes(value);
+  const withoutComment = stripYamlComment(value).trim();
+  const unquoted = stripMatchingQuotes(withoutComment);
 
   if (unquoted === 'true') {
     return true;
@@ -149,11 +175,9 @@ function parseYamlScalar(value: string): unknown {
     return false;
   }
 
-  if (/^\[.*\]$/.test(unquoted)) {
-    return unquoted
-      .slice(1, -1)
-      .split(',')
-      .map((item) => stripMatchingQuotes(item.trim()))
+  if (/^\[.*\]$/.test(withoutComment)) {
+    return splitInlineArray(withoutComment.slice(1, -1))
+      .map((item) => parseYamlScalar(item))
       .filter(Boolean);
   }
 
@@ -161,12 +185,101 @@ function parseYamlScalar(value: string): unknown {
 }
 
 function stripMatchingQuotes(value: string) {
-  if (
-    (value.startsWith('"') && value.endsWith('"')) ||
-    (value.startsWith("'") && value.endsWith("'"))
-  ) {
+  if (value.startsWith('"') && value.endsWith('"')) {
+    try {
+      return JSON.parse(value) as string;
+    } catch {
+      return value.slice(1, -1);
+    }
+  }
+
+  if (value.startsWith("'") && value.endsWith("'")) {
     return value.slice(1, -1);
   }
 
   return value;
+}
+
+function stripYamlComment(value: string) {
+  let quote: '"' | "'" | undefined;
+
+  for (let index = 0; index < value.length; index += 1) {
+    const character = value[index];
+    const previous = value[index - 1];
+
+    if ((character === '"' || character === "'") && previous !== '\\') {
+      quote = quote === character ? undefined : quote ?? character;
+      continue;
+    }
+
+    if (character === '#' && !quote && (index === 0 || /\s/.test(previous))) {
+      return value.slice(0, index);
+    }
+  }
+
+  return value;
+}
+
+function splitInlineArray(value: string) {
+  const items: string[] = [];
+  let current = '';
+  let quote: '"' | "'" | undefined;
+
+  for (let index = 0; index < value.length; index += 1) {
+    const character = value[index];
+    const previous = value[index - 1];
+
+    if ((character === '"' || character === "'") && previous !== '\\') {
+      quote = quote === character ? undefined : quote ?? character;
+    }
+
+    if (character === ',' && !quote) {
+      items.push(current.trim());
+      current = '';
+      continue;
+    }
+
+    current += character;
+  }
+
+  if (current.trim().length > 0) {
+    items.push(current.trim());
+  }
+
+  return items;
+}
+
+function readYamlBlock(lines: string[], startIndex: number) {
+  const blockLines: string[] = [];
+  let lastIndex = startIndex - 1;
+
+  for (let index = startIndex; index < lines.length; index += 1) {
+    const line = lines[index] ?? '';
+
+    if (line.trim().length === 0) {
+      blockLines.push('');
+      lastIndex = index;
+      continue;
+    }
+
+    if (!/^\s+/.test(line)) {
+      break;
+    }
+
+    blockLines.push(line.replace(/^\s{2}/, ''));
+    lastIndex = index;
+  }
+
+  return {
+    lines: blockLines,
+    lastIndex,
+  };
+}
+
+function foldYamlLines(lines: string[]) {
+  return lines
+    .join('\n')
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.replace(/\n/g, ' '))
+    .join('\n\n');
 }
