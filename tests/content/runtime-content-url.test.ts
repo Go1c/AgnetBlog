@@ -16,6 +16,15 @@ describe('runtime content URLs', () => {
     ).toBe('/blog/%E6%9C%AA%E5%91%BD%E5%90%8D/4561223');
   });
 
+  it('maps the runtime docs index slug to the docs homepage', () => {
+    expect(
+      runtimeContentUrl({
+        type: ContentType.DOCS,
+        slug: 'index',
+      }),
+    ).toBe('/docs');
+  });
+
   it('decodes route slug segments before querying stored content slugs', () => {
     expect(
       routeSlugSegmentsToContentSlug(['%E6%9C%AA%E5%91%BD%E5%90%8D', '4561223']),

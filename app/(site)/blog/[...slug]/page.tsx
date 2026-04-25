@@ -62,7 +62,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </p>
         </div>
         <DocsBody>
-          <MarkdownRenderer content={item.body} />
+              <MarkdownRenderer content={item.body} sourcePath={item.sourcePath} />
         </DocsBody>
       </article>
     </main>

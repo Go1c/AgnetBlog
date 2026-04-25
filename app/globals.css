@@ -24,3 +24,119 @@ a {
   text-underline-offset: 4px;
 }
 
+.github-markdown {
+  color: #292524;
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.github-markdown > * + * {
+  margin-top: 1rem;
+}
+
+.github-markdown h1,
+.github-markdown h2,
+.github-markdown h3,
+.github-markdown h4,
+.github-markdown h5,
+.github-markdown h6 {
+  color: #0c0a09;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.github-markdown h1 {
+  font-size: 2rem;
+}
+
+.github-markdown h2 {
+  border-bottom: 1px solid rgba(28, 25, 23, 0.12);
+  font-size: 1.5rem;
+  padding-bottom: 0.35rem;
+}
+
+.github-markdown h3 {
+  font-size: 1.25rem;
+}
+
+.github-markdown a {
+  color: #0f766e;
+  font-weight: 650;
+  text-decoration-line: underline;
+  text-decoration-color: rgba(15, 118, 110, 0.3);
+}
+
+.github-markdown blockquote {
+  border-left: 4px solid rgba(15, 118, 110, 0.42);
+  background: rgba(240, 253, 250, 0.65);
+  color: #57534e;
+  padding: 0.75rem 1rem;
+}
+
+.github-markdown ul,
+.github-markdown ol {
+  padding-left: 1.5rem;
+}
+
+.github-markdown ul {
+  list-style: disc;
+}
+
+.github-markdown ol {
+  list-style: decimal;
+}
+
+.github-markdown li + li {
+  margin-top: 0.35rem;
+}
+
+.github-markdown li > input[type='checkbox'] {
+  margin-right: 0.5rem;
+  transform: translateY(1px);
+}
+
+.github-markdown code {
+  border-radius: 0.25rem;
+  background: rgba(28, 25, 23, 0.08);
+  color: #1c1917;
+  font-size: 0.9em;
+  padding: 0.15rem 0.35rem;
+}
+
+.github-markdown pre {
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  background: #0c0a09;
+  color: #f5f5f4;
+  padding: 1rem;
+}
+
+.github-markdown pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+.github-markdown table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+}
+
+.github-markdown th,
+.github-markdown td {
+  border: 1px solid rgba(28, 25, 23, 0.14);
+  padding: 0.45rem 0.65rem;
+}
+
+.github-markdown th {
+  background: rgba(245, 245, 244, 0.9);
+  font-weight: 750;
+}
+
+.github-markdown img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+}

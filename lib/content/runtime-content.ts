@@ -14,6 +14,10 @@ export type RuntimeContentItem = Pick<
 >;
 
 export function runtimeContentUrl(item: Pick<RuntimeContentItem, 'type' | 'slug'>) {
+  if (item.type === ContentType.DOCS && item.slug === 'index') {
+    return '/docs';
+  }
+
   const encodedSlug = encodeSlugPath(item.slug);
 
   return item.type === ContentType.DOCS ? `/docs/${encodedSlug}` : `/blog/${encodedSlug}`;

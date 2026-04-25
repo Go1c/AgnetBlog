@@ -242,7 +242,7 @@ export default async function AdminContentDetailPage({
       <section className="rounded-lg border border-stone-900/10 bg-white p-6 shadow-sm">
         <h3 className="text-lg font-bold text-stone-950">正文预览</h3>
         <div className="mt-5 border-t border-stone-900/10 pt-5">
-          <MarkdownRenderer content={item.body} />
+          <MarkdownRenderer content={item.body} sourcePath={item.sourcePath} />
         </div>
       </section>
 

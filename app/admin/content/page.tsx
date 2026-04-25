@@ -86,6 +86,9 @@ export default async function AdminContentPage({ searchParams }: AdminContentPag
   const syncSkipped = getSingleParam(params.sync_skipped);
   const syncStatus = getSingleParam(params.sync_status);
   const syncUpserted = getSingleParam(params.sync_upserted);
+  const batchUpdated = getSingleParam(params.batch_updated);
+  const batchFailed = getSingleParam(params.batch_failed);
+  const batchAuditFailed = getSingleParam(params.batch_audit_failed);
   const filters = parseFilters(params);
   const allItems = await listContentItems({
     select: adminContentItemSelect,
@@ -160,6 +163,15 @@ export default async function AdminContentPage({ searchParams }: AdminContentPag
         </div>
       ) : null}
 
+      {batchUpdated ? (
+        <div className="mt-4 rounded-md border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-medium text-teal-900">
+          批量修改已提交：成功 {batchUpdated} 条
+          {batchFailed ? `，失败 ${batchFailed} 条` : ''}
+          {batchAuditFailed ? `，审计记录失败 ${batchAuditFailed} 条` : ''}
+          {job ? `，同步任务 ${job} 已执行。` : '。'}
+        </div>
+      ) : null}
+
       <form className="mt-6 grid gap-3 md:grid-cols-[1.4fr_1fr_1fr_1fr_auto_auto]" method="get">
         {filters.path ? <input name="path" type="hidden" value={filters.path} /> : null}
         <label className="text-sm font-medium text-stone-700">
@@ -223,6 +235,67 @@ export default async function AdminContentPage({ searchParams }: AdminContentPag
         </Link>
       </form>
 
+      <form
+        action="/api/admin/content/batch-metadata"
+        className="mt-4 grid gap-3 rounded-md border border-stone-900/10 bg-stone-50/70 p-4 md:grid-cols-[auto_1fr_1fr_1fr_auto]"
+        id="batch-content-form"
+        method="post"
+      >
+        <input name="returnTo" type="hidden" value={listReturnTo} />
+        <div className="self-end text-sm font-bold text-stone-950">批量修改</div>
+        <label className="text-sm font-medium text-stone-700">
+          可见性
+          <select
+            className="mt-1 w-full rounded-md border border-stone-900/15 bg-white px-3 py-2 text-sm text-stone-900"
+            defaultValue="keep"
+            name="visibility"
+          >
+            <option value="keep">保持不变</option>
+            {visibilityOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="text-sm font-medium text-stone-700">
+          发布状态
+          <select
+            className="mt-1 w-full rounded-md border border-stone-900/15 bg-white px-3 py-2 text-sm text-stone-900"
+            defaultValue="keep"
+            name="published"
+          >
+            <option value="keep">保持不变</option>
+            {publishedOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="text-sm font-medium text-stone-700">
+          类型
+          <select
+            className="mt-1 w-full rounded-md border border-stone-900/15 bg-white px-3 py-2 text-sm text-stone-900"
+            defaultValue="keep"
+            name="contentType"
+          >
+            <option value="keep">保持不变</option>
+            {contentTypeOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          className="self-end rounded-md bg-stone-950 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-800"
+          type="submit"
+        >
+          批量保存
+        </button>
+      </form>
+
       <div className="mt-6 grid gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
         <aside className="rounded-md border border-stone-900/10 bg-stone-50/60 p-3">
           <div className="mb-2 flex items-center justify-between gap-3">
@@ -253,8 +326,9 @@ export default async function AdminContentPage({ searchParams }: AdminContentPag
           </div>
 
           <div className="overflow-hidden rounded-md border border-stone-900/10">
-            <div className="hidden grid-cols-[minmax(0,1.5fr)_120px_120px_120px_130px_180px] gap-3 border-b border-stone-900/10 bg-stone-50 px-4 py-2 text-xs font-bold uppercase tracking-wide text-stone-500 md:grid">
-              <span>来源</span>
+            <div className="hidden grid-cols-[44px_minmax(0,1.6fr)_120px_120px_120px_130px_180px] gap-3 border-b border-stone-900/10 bg-stone-50 px-4 py-2 text-xs font-bold uppercase tracking-wide text-stone-500 md:grid">
+              <span>选择</span>
+              <span>标题/来源</span>
               <span>可见性</span>
               <span>发布状态</span>
               <span>类型</span>
@@ -269,17 +343,25 @@ export default async function AdminContentPage({ searchParams }: AdminContentPag
               items.map((item) => (
                 <form
                   action={`/api/admin/content/${encodeURIComponent(item.id)}/metadata`}
-                  className="grid gap-3 border-b border-stone-900/10 px-4 py-3 last:border-b-0 md:grid-cols-[minmax(0,1.5fr)_120px_120px_120px_130px_180px] md:items-center"
+                  className="grid gap-3 border-b border-stone-900/10 px-4 py-3 last:border-b-0 md:grid-cols-[44px_minmax(0,1.6fr)_120px_120px_120px_130px_180px] md:items-center"
                   key={item.id}
                   method="post"
                 >
                   <input name="returnTo" type="hidden" value={listReturnTo} />
+                  <input
+                    aria-label={`选择 ${item.title || item.sourcePath}`}
+                    className="h-4 w-4 rounded border-stone-900/20 text-teal-700"
+                    form="batch-content-form"
+                    name="contentId"
+                    type="checkbox"
+                    value={item.id}
+                  />
                   <div className="min-w-0">
                     <Link
                       className="block truncate text-sm font-semibold text-stone-950 hover:text-teal-800"
                       href={`/admin/content/${encodeURIComponent(item.id)}`}
                     >
-                      {item.title}
+                      {item.title || '未命名'}
                     </Link>
                     <div className="mt-1 truncate text-xs text-stone-500">{item.sourcePath}</div>
                     <div className="mt-1 truncate text-xs text-stone-500">

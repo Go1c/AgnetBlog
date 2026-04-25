@@ -14,12 +14,23 @@ describe('admin content management', () => {
     const listPage = read('app/admin/content/page.tsx');
 
     expect(listPage).not.toContain('take: 50');
+    expect(listPage).toContain('标题/来源');
     expect(listPage).toContain('发布状态');
     expect(listPage).toContain('name="published"');
     expect(listPage).toContain('sync_scanned');
     expect(listPage).toContain('写入');
     expect(listPage).toContain('查看正文');
     expect(listPage).toContain('/admin/content/${encodeURIComponent(item.id)}');
+  });
+
+  it('adds batch metadata controls for selected content rows', () => {
+    const listPage = read('app/admin/content/page.tsx');
+
+    expect(listPage).toContain('id="batch-content-form"');
+    expect(listPage).toContain('action="/api/admin/content/batch-metadata"');
+    expect(listPage).toContain('name="contentId"');
+    expect(listPage).toContain('批量修改');
+    expect(listPage).toContain('批量保存');
   });
 
   it('adds a detail page for full body review and permission management', () => {
