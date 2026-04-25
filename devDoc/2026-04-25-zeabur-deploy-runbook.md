@@ -22,6 +22,8 @@ npm run build
 npm run start
 ```
 
+`npm run start` 会先执行 `prisma db push`，再执行 `next start`。
+
 第一次上线前，以及 Prisma schema 变化后，需要运行一次：
 
 ```bash

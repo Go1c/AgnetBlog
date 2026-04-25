@@ -51,6 +51,8 @@ npm run build
 npm run start
 ```
 
+`npm run start` 会先执行 `prisma db push`，再启动 Next.js，避免代码更新后数据库字段没跟上导致前台或后台白屏。
+
 第一次连接数据库后，进入 Zeabur Web 服务 Shell 运行：
 
 ```bash

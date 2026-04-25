@@ -16,4 +16,16 @@ describe('deployment package metadata', () => {
       npm: '>=10',
     });
   });
+
+  it('pushes the Prisma schema before starting the production server', () => {
+    const metadata = packageJson as {
+      scripts?: Record<string, string>;
+      dependencies?: Record<string, string>;
+      devDependencies?: Record<string, string>;
+    };
+
+    expect(metadata.scripts?.start).toBe('prisma db push && next start');
+    expect(metadata.dependencies?.prisma).toBeDefined();
+    expect(metadata.devDependencies?.prisma).toBeUndefined();
+  });
 });
