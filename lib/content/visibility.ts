@@ -1,9 +1,11 @@
+import type { Visibility } from './types';
+
 type PublishablePage = {
   data: {
     description?: string;
     summary?: string;
     date?: string | Date;
-    visibility?: 'private' | 'public' | 'unlisted';
+    visibility?: Visibility;
     published?: boolean;
   };
 };
