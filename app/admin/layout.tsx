@@ -19,6 +19,7 @@ function AdminAccessDenied({
   githubLogin: string | null;
 }) {
   const signInHref = `/api/auth/signin?callbackUrl=${encodeURIComponent('/admin')}`;
+  const isNotAllowlisted = reason === 'not_allowlisted';
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 items-center px-6 py-10">
@@ -30,22 +31,28 @@ function AdminAccessDenied({
             : 'This GitHub account is not allowlisted'}
         </h1>
         <p className="mt-3 text-sm leading-6 text-stone-700">
-          {reason === 'not_authenticated'
+          {!isNotAllowlisted
             ? 'Admin routes require GitHub OAuth and an entry in ADMIN_GITHUB_LOGINS.'
-            : `Signed in as ${githubLogin ?? 'an unknown GitHub account'}, which is not listed in ADMIN_GITHUB_LOGINS.`}
+            : `Signed in as ${githubLogin ?? 'an unknown GitHub account'}, which is not listed in ADMIN_GITHUB_LOGINS. Sign out, then switch to an allowlisted GitHub account.`}
         </p>
         <div className="mt-5 flex flex-wrap gap-3">
+          {!isNotAllowlisted ? (
+            <Link
+              className="rounded-md bg-stone-950 px-4 py-2 text-sm font-semibold text-white"
+              href={signInHref}
+            >
+              Sign in
+            </Link>
+          ) : null}
           <Link
-            className="rounded-md bg-stone-950 px-4 py-2 text-sm font-semibold text-white"
-            href={signInHref}
-          >
-            Sign in
-          </Link>
-          <Link
-            className="rounded-md border border-stone-900/15 px-4 py-2 text-sm font-semibold text-stone-800"
+            className={
+              isNotAllowlisted
+                ? 'rounded-md bg-stone-950 px-4 py-2 text-sm font-semibold text-white'
+                : 'rounded-md border border-stone-900/15 px-4 py-2 text-sm font-semibold text-stone-800'
+            }
             href="/api/auth/signout"
           >
-            Sign out
+            {isNotAllowlisted ? 'Sign out to switch account' : 'Sign out'}
           </Link>
         </div>
       </section>

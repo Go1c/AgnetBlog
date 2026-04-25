@@ -1,6 +1,8 @@
 import type { DefaultSession, NextAuthOptions } from 'next-auth';
 import GitHubProvider from 'next-auth/providers/github';
 
+import { isAdminGitHubLoginAllowed } from '@/lib/auth/admin';
+
 declare module 'next-auth' {
   interface Session {
     user?: DefaultSession['user'] & {
@@ -33,6 +35,9 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    signIn({ profile }) {
+      return isAdminGitHubLoginAllowed(getGitHubLogin(profile));
+    },
     jwt({ token, profile }) {
       const login = getGitHubLogin(profile);
 

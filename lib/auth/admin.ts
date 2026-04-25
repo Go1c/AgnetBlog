@@ -1,7 +1,5 @@
 import { getServerSession } from 'next-auth';
 
-import { authOptions } from '@/auth';
-
 export type AdminActor = {
   githubLogin: string;
   name: string | null;
@@ -20,7 +18,7 @@ export type AdminAuthState =
       githubLogin: string | null;
     };
 
-function getAdminLoginAllowlist(): Set<string> {
+export function getAdminLoginAllowlist(): Set<string> {
   const rawLogins = process.env.ADMIN_GITHUB_LOGINS ?? '';
   const normalizedLogins = rawLogins
     .split(/[\s,]+/)
@@ -30,7 +28,16 @@ function getAdminLoginAllowlist(): Set<string> {
   return new Set(normalizedLogins);
 }
 
+export function isAdminGitHubLoginAllowed(githubLogin: string | null): boolean {
+  if (!githubLogin) {
+    return false;
+  }
+
+  return getAdminLoginAllowlist().has(githubLogin.toLowerCase());
+}
+
 export async function getAdminAuthState(): Promise<AdminAuthState> {
+  const { authOptions } = await import('@/auth');
   const session = await getServerSession(authOptions);
   const user = session?.user;
   const githubLogin = user?.login ?? null;
@@ -43,9 +50,7 @@ export async function getAdminAuthState(): Promise<AdminAuthState> {
     };
   }
 
-  const allowlist = getAdminLoginAllowlist();
-
-  if (!allowlist.has(githubLogin.toLowerCase())) {
+  if (!isAdminGitHubLoginAllowed(githubLogin)) {
     return {
       authorized: false,
       reason: 'not_allowlisted',
@@ -61,5 +66,35 @@ export async function getAdminAuthState(): Promise<AdminAuthState> {
       email: user.email ?? null,
       image: user.image ?? null,
     },
+  };
+}
+
+export async function requireAdmin(): Promise<AdminAuthState> {
+  return getAdminAuthState();
+}
+
+export function adminUnauthorizedResponse(authState: Exclude<AdminAuthState, { authorized: true }>) {
+  return Response.json(
+    {
+      ok: false,
+      error: authState.reason,
+    },
+    {
+      status: authState.reason === 'not_authenticated' ? 401 : 403,
+    },
+  );
+}
+
+export function withAdminRoute(
+  handler: (actor: AdminActor, request: Request) => Response | Promise<Response>,
+) {
+  return async function adminRouteHandler(request: Request) {
+    const authState = await requireAdmin();
+
+    if (!authState.authorized) {
+      return adminUnauthorizedResponse(authState);
+    }
+
+    return handler(authState.actor, request);
   };
 }
