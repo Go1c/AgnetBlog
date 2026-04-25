@@ -40,6 +40,8 @@ export type GitHubCompareFile = {
 export type GitHubCompareResult = {
   baseCommit: string;
   headCommit: string;
+  filesComplete: boolean;
+  incompleteReason?: string;
   files: GitHubCompareFile[];
 };
 
@@ -120,19 +122,29 @@ export async function compareCommits(
     }>;
   };
 
+  const rawFiles = Array.isArray(data.files) ? data.files : undefined;
+  const files = (rawFiles ?? [])
+    .filter((file) => typeof file.filename === 'string')
+    .map((file) => ({
+      filename: file.filename as string,
+      status: file.status ?? 'changed',
+      sha: file.sha,
+      previousFilename: file.previous_filename,
+    }));
+  const filesComplete = rawFiles !== undefined && rawFiles.length < 300;
+
   return {
     ok: true,
     data: {
       baseCommit: data.base_commit?.sha ?? data.merge_base_commit?.sha ?? base,
       headCommit: data.commits?.at(-1)?.sha ?? head,
-      files: (data.files ?? [])
-        .filter((file) => typeof file.filename === 'string')
-        .map((file) => ({
-          filename: file.filename as string,
-          status: file.status ?? 'changed',
-          sha: file.sha,
-          previousFilename: file.previous_filename,
-        })),
+      filesComplete,
+      incompleteReason: filesComplete
+        ? undefined
+        : rawFiles
+          ? 'GitHub compare returned the maximum file list size.'
+          : 'GitHub compare did not include a file list.',
+      files,
     },
   };
 }

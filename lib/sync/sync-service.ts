@@ -5,12 +5,13 @@ import type { DirectoryPolicyInput, IngestFileInput } from '@/lib/content/types'
 import { db } from '@/lib/db';
 import { upsertContentItem } from '@/lib/db/content-repository';
 import { updateSyncJobStatus } from '@/lib/db/sync-job-repository';
-import { compareCommits, fetchFileContent } from '@/lib/github/client';
+import { compareCommits, fetchFileContent, listRepoTree } from '@/lib/github/client';
 import { ContentType, SyncStatus, Visibility } from '@/lib/generated/prisma/client';
 import type { Prisma } from '@/lib/generated/prisma/client';
 import {
   SYNC_SOURCE_ROOTS,
   type IncrementalSyncInput,
+  type ReconcileSyncInput,
   type SyncFileResult,
   type SyncRunResult,
 } from '@/lib/sync/types';
@@ -30,66 +31,135 @@ export async function runIncrementalSync(input: IncrementalSyncInput): Promise<S
     errorMessage: null,
   });
 
-  const fatal = async (message: string, files: SyncFileResult[] = []) =>
-    finishJob(input.jobId, {
-      mode: 'incremental',
-      sourceRef: input.after,
-      scanned: files.length,
-      upserted: count(files, 'upserted'),
-      unpublished: count(files, 'unpublished'),
-      skipped: count(files, 'skipped'),
-      failed: Math.max(1, count(files, 'failed')),
-      files:
-        files.length > 0
-          ? files
-          : [{ path: '(compare)', operation: 'failed', message }],
-      queue: inlineQueue(),
-      status: SyncStatus.FAILED,
-    });
-
-  if (!input.before || ZERO_COMMIT.test(input.before)) {
-    return fatal('Incremental sync requires a valid before commit.');
-  }
-
-  const comparison = await compareCommits(input.before, input.after);
-  if (!comparison.ok) {
-    return fatal(comparison.error.message);
-  }
-
-  const changedMarkdown = comparison.data.files.filter((file) => isMarkdownPath(file.filename));
-  const results: SyncFileResult[] = [];
-  const upsertFiles: MarkdownFile[] = [];
-
-  for (const file of changedMarkdown) {
-    if (file.previousFilename && isMarkdownPath(file.previousFilename)) {
-      results.push(await unpublishContentPath(file.previousFilename));
+  try {
+    if (!input.before || ZERO_COMMIT.test(input.before)) {
+      return failJob(
+        input.jobId,
+        'incremental',
+        input.after,
+        'Incremental sync requires a valid before commit.',
+      );
     }
 
-    if (file.status === 'removed') {
-      results.push(await unpublishContentPath(file.filename));
-      continue;
+    const comparison = await compareCommits(input.before, input.after);
+    if (!comparison.ok) {
+      return failJob(input.jobId, 'incremental', input.after, comparison.error.message);
     }
 
-    const content = await fetchFileContent(file.filename, input.after);
-    if (!content.ok) {
-      results.push({
-        path: file.filename,
-        operation: 'failed',
-        message: content.error.message,
+    if (!comparison.data.filesComplete) {
+      return runReconciliationSync({
+        jobId: input.jobId,
+        sourceRef: input.after,
+        reason: comparison.data.incompleteReason ?? 'GitHub compare completeness is unknown.',
       });
-      continue;
     }
 
-    upsertFiles.push({
-      path: file.filename,
-      content: content.data,
-      sourceHash: file.sha ?? hashContent(content.data),
-    });
+    const results: SyncFileResult[] = [];
+    const upsertFiles: MarkdownFile[] = [];
+
+    for (const file of comparison.data.files) {
+      const previousWasMarkdown = Boolean(
+        file.previousFilename && isMarkdownPath(file.previousFilename),
+      );
+      const currentIsMarkdown = isMarkdownPath(file.filename);
+
+      if (previousWasMarkdown && file.previousFilename) {
+        results.push(await deleteDerivedContentPath(file.previousFilename));
+      }
+
+      if (!currentIsMarkdown) {
+        continue;
+      }
+
+      if (file.status === 'removed') {
+        results.push(await deleteDerivedContentPath(file.filename));
+        continue;
+      }
+
+      const content = await fetchFileContent(file.filename, input.after);
+      if (!content.ok) {
+        results.push({
+          path: file.filename,
+          operation: 'failed',
+          message: content.error.message,
+        });
+        continue;
+      }
+
+      upsertFiles.push({
+        path: file.filename,
+        content: content.data,
+        sourceHash: file.sha ?? hashContent(content.data),
+      });
+    }
+
+    results.push(...(await ingestAndUpsertMarkdownFiles(upsertFiles)));
+
+    return finishJob(input.jobId, buildRunResult('incremental', input.after, results));
+  } catch (error) {
+    return failJob(input.jobId, 'incremental', input.after, sanitizeError(error));
   }
+}
 
-  results.push(...(await ingestAndUpsertMarkdownFiles(upsertFiles)));
+export async function runReconciliationSync(input: ReconcileSyncInput): Promise<SyncRunResult> {
+  await updateSyncJobStatus(input.jobId, SyncStatus.RUNNING, {
+    startedAt: new Date(),
+    errorMessage: null,
+  });
 
-  return finishJob(input.jobId, buildRunResult('incremental', input.after, results));
+  try {
+    const tree = await listRepoTree(input.sourceRef);
+    if (!tree.ok) {
+      return failJob(input.jobId, 'reconcile', input.sourceRef, tree.error.message, [
+        {
+          path: '(repository-tree)',
+          operation: 'failed',
+          message: tree.error.message,
+        },
+      ]);
+    }
+
+    const markdownFiles = tree.data.filter(
+      (item) => item.type === 'blob' && isMarkdownPath(item.path),
+    );
+    const results: SyncFileResult[] = [];
+    const files: MarkdownFile[] = [];
+
+    if (input.reason) {
+      results.push({
+        path: '(compare)',
+        operation: 'skipped',
+        message: input.reason,
+      });
+    }
+
+    for (const item of markdownFiles) {
+      const content = await fetchFileContent(item.path, input.sourceRef);
+      if (!content.ok) {
+        results.push({
+          path: item.path,
+          operation: 'failed',
+          message: content.error.message,
+        });
+        continue;
+      }
+
+      files.push({
+        path: item.path,
+        content: content.data,
+        sourceHash: item.sha,
+      });
+    }
+
+    results.push(...(await ingestAndUpsertMarkdownFiles(files)));
+    results.push(
+      ...(await deleteMissingRepositoryContent(new Set(markdownFiles.map((item) => item.path)))),
+    );
+
+    return finishJob(input.jobId, buildRunResult('reconcile', input.sourceRef, results));
+  } catch (error) {
+    return failJob(input.jobId, 'reconcile', input.sourceRef, sanitizeError(error));
+  }
 }
 
 export async function ingestAndUpsertMarkdownFiles(files: MarkdownFile[]): Promise<SyncFileResult[]> {
@@ -169,22 +239,17 @@ export async function ingestAndUpsertMarkdownFiles(files: MarkdownFile[]): Promi
   return results;
 }
 
-export async function unpublishContentPath(path: string): Promise<SyncFileResult> {
+export async function deleteDerivedContentPath(path: string): Promise<SyncFileResult> {
   try {
-    const result = await db.contentItem.updateMany({
+    const result = await db.contentItem.deleteMany({
       where: {
         sourcePath: path,
-      },
-      data: {
-        published: false,
-        visibility: Visibility.PRIVATE,
-        syncedAt: new Date(),
       },
     });
 
     return {
       path,
-      operation: result.count > 0 ? 'unpublished' : 'skipped',
+      operation: result.count > 0 ? 'deleted' : 'skipped',
       message: result.count > 0 ? undefined : 'No derived content item exists for this path.',
     };
   } catch (error) {
@@ -196,7 +261,7 @@ export async function unpublishContentPath(path: string): Promise<SyncFileResult
   }
 }
 
-export async function unpublishMissingRepositoryContent(
+export async function deleteMissingRepositoryContent(
   presentPaths: Set<string>,
 ): Promise<SyncFileResult[]> {
   const indexedItems = await db.contentItem.findMany({
@@ -218,7 +283,7 @@ export async function unpublishMissingRepositoryContent(
 
   const results: SyncFileResult[] = [];
   for (const path of missing) {
-    results.push(await unpublishContentPath(path));
+    results.push(await deleteDerivedContentPath(path));
   }
 
   return results;
@@ -244,10 +309,15 @@ export function buildRunResult(
 ): SyncRunResult {
   const failed = count(files, 'failed');
   const upserted = count(files, 'upserted');
+  const deleted = count(files, 'deleted');
   const unpublished = count(files, 'unpublished');
   const skipped = count(files, 'skipped');
   const status =
-    failed === 0 ? SyncStatus.SUCCESS : upserted > 0 || unpublished > 0 || skipped > 0 ? SyncStatus.PARTIAL : SyncStatus.FAILED;
+    failed === 0
+      ? SyncStatus.SUCCESS
+      : upserted > 0 || deleted > 0 || unpublished > 0 || skipped > 0
+        ? SyncStatus.PARTIAL
+        : SyncStatus.FAILED;
 
   return {
     mode,
@@ -255,6 +325,7 @@ export function buildRunResult(
     sourceRef,
     scanned: files.length,
     upserted,
+    deleted,
     unpublished,
     skipped,
     failed,
@@ -332,6 +403,31 @@ function hashContent(content: string) {
 
 function count(files: SyncFileResult[], operation: SyncFileResult['operation']) {
   return files.filter((file) => file.operation === operation).length;
+}
+
+function failJob(
+  jobId: string,
+  mode: SyncRunResult['mode'],
+  sourceRef: string | undefined,
+  message: string,
+  files: SyncFileResult[] = [],
+) {
+  const failedFiles =
+    files.length > 0 ? files : [{ path: `(${mode})`, operation: 'failed' as const, message }];
+
+  return finishJob(jobId, {
+    mode,
+    sourceRef,
+    scanned: failedFiles.length,
+    upserted: count(failedFiles, 'upserted'),
+    deleted: count(failedFiles, 'deleted'),
+    unpublished: count(failedFiles, 'unpublished'),
+    skipped: count(failedFiles, 'skipped'),
+    failed: Math.max(1, count(failedFiles, 'failed')),
+    files: failedFiles,
+    queue: inlineQueue(),
+    status: SyncStatus.FAILED,
+  });
 }
 
 function sanitizeError(error: unknown) {

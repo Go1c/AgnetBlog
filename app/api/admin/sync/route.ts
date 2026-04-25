@@ -8,7 +8,18 @@ import type { ManualSyncRequest } from '@/lib/sync/types';
 export const dynamic = 'force-dynamic';
 
 export const POST = withAdminRoute(async (actor, request) => {
-  const input = await parseManualSyncRequest(request);
+  const parsed = await parseManualSyncRequest(request);
+  if (!parsed.ok) {
+    return Response.json(
+      {
+        ok: false,
+        error: parsed.error,
+      },
+      { status: 400 },
+    );
+  }
+
+  const input = parsed.data;
   const mode = input.mode ?? 'reconcile';
 
   if (mode === 'incremental' && !input.after) {
@@ -57,17 +68,75 @@ export const POST = withAdminRoute(async (actor, request) => {
   });
 });
 
-async function parseManualSyncRequest(request: Request): Promise<ManualSyncRequest> {
+type ManualSyncParseResult =
+  | {
+      ok: true;
+      data: ManualSyncRequest;
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
+async function parseManualSyncRequest(request: Request): Promise<ManualSyncParseResult> {
   const text = await request.text();
 
   if (text.trim().length === 0) {
-    return {};
+    return {
+      ok: true,
+      data: {},
+    };
   }
 
+  let parsed: unknown;
   try {
-    const parsed = JSON.parse(text) as ManualSyncRequest;
-    return parsed && typeof parsed === 'object' ? parsed : {};
+    parsed = JSON.parse(text) as unknown;
   } catch {
-    return {};
+    return {
+      ok: false,
+      error: 'invalid_json',
+    };
   }
+
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return {
+      ok: false,
+      error: 'invalid_body',
+    };
+  }
+
+  const candidate = parsed as Record<string, unknown>;
+  if (
+    candidate.mode !== undefined &&
+    candidate.mode !== 'reconcile' &&
+    candidate.mode !== 'incremental'
+  ) {
+    return {
+      ok: false,
+      error: 'invalid_mode',
+    };
+  }
+
+  if (candidate.before !== undefined && typeof candidate.before !== 'string') {
+    return {
+      ok: false,
+      error: 'invalid_before',
+    };
+  }
+
+  if (candidate.after !== undefined && typeof candidate.after !== 'string') {
+    return {
+      ok: false,
+      error: 'invalid_after',
+    };
+  }
+
+  return {
+    ok: true,
+    data: {
+      mode: candidate.mode,
+      before: candidate.before,
+      after: candidate.after,
+    } as ManualSyncRequest,
+  };
 }

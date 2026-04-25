@@ -8,7 +8,7 @@ export const SYNC_SOURCE_ROOTS = {
 
 export type SyncMode = 'incremental' | 'reconcile';
 
-export type SyncFileOperation = 'upserted' | 'unpublished' | 'skipped' | 'failed';
+export type SyncFileOperation = 'upserted' | 'deleted' | 'unpublished' | 'skipped' | 'failed';
 
 export type SyncFileResult = {
   path: string;
@@ -23,6 +23,7 @@ export type SyncRunResult = {
   sourceRef?: string;
   scanned: number;
   upserted: number;
+  deleted: number;
   unpublished: number;
   skipped: number;
   failed: number;
@@ -42,6 +43,7 @@ export type IncrementalSyncInput = {
 export type ReconcileSyncInput = {
   jobId: string;
   sourceRef?: string;
+  reason?: string;
 };
 
 export type GitHubPushPayload = {
