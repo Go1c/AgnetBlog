@@ -81,6 +81,9 @@ export const POST = withAdminRoute(async (actor, request) => {
       jobId: job.id,
       mode: result.mode,
       status: result.status,
+      scanned: result.scanned,
+      upserted: result.upserted,
+      failed: result.failed,
     });
   }
 
@@ -101,6 +104,9 @@ function redirectToAdminPage(
     jobId?: string;
     mode?: string;
     status?: string;
+    scanned?: number;
+    upserted?: number;
+    failed?: number;
   },
 ) {
   return new Response(null, {

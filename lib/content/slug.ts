@@ -113,9 +113,9 @@ export function normalizeSlugPath(value: string) {
     .map((segment) =>
       segment
         .trim()
-        .replace(/[A-Z]/g, (letter) => letter.toLowerCase())
+        .toLowerCase()
         .replace(/\s+/g, '-')
-        .replace(/[^a-z0-9._~-]+/g, '')
+        .replace(/[^\p{L}\p{N}._~-]+/gu, '')
         .replace(/-+/g, '-')
         .replace(/^-+|-+$/g, ''),
     )

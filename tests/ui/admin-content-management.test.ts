@@ -16,6 +16,8 @@ describe('admin content management', () => {
     expect(listPage).not.toContain('take: 50');
     expect(listPage).toContain('发布状态');
     expect(listPage).toContain('name="published"');
+    expect(listPage).toContain('sync_scanned');
+    expect(listPage).toContain('写入');
     expect(listPage).toContain('查看正文');
     expect(listPage).toContain('/admin/content/${encodeURIComponent(item.id)}');
   });

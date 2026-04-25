@@ -6,6 +6,30 @@ export const SYNC_SOURCE_ROOTS = {
   docs: 'content/docs',
 } as const;
 
+export const SYNC_DEFAULT_DIRECTORY_POLICIES = [
+  {
+    pathPrefix: 'content/blog',
+    defaults: {
+      contentType: 'blog',
+      visibility: 'private',
+    },
+  },
+  {
+    pathPrefix: 'content/docs',
+    defaults: {
+      contentType: 'docs',
+      visibility: 'private',
+    },
+  },
+  {
+    pathPrefix: '',
+    defaults: {
+      contentType: 'blog',
+      visibility: 'private',
+    },
+  },
+] as const;
+
 export type SyncMode = 'incremental' | 'reconcile';
 
 export type SyncFileOperation = 'upserted' | 'deleted' | 'unpublished' | 'skipped' | 'failed';

@@ -78,8 +78,13 @@ describe('manual sync request parsing', () => {
         jobId: 'job-1',
         mode: 'reconcile',
         status: 'SUCCESS',
+        scanned: 0,
+        upserted: 0,
+        failed: 0,
       }),
-    ).toBe('/admin/content?sync_job=job-1&sync_mode=reconcile&sync_status=SUCCESS');
+    ).toBe(
+      '/admin/content?sync_job=job-1&sync_mode=reconcile&sync_status=SUCCESS&sync_scanned=0&sync_upserted=0&sync_failed=0',
+    );
 
     expect(
       buildManualSyncRedirectLocation('http://localhost:8080/admin/content', {

@@ -23,6 +23,9 @@ type ManualSyncRedirectResult = {
   jobId?: string;
   mode?: string;
   status?: string;
+  scanned?: number;
+  upserted?: number;
+  failed?: number;
 };
 
 export async function parseManualSyncRequest(
@@ -109,6 +112,18 @@ export function buildManualSyncRedirectLocation(
 
   if (result.status) {
     target.searchParams.set('sync_status', result.status);
+  }
+
+  if (result.scanned !== undefined) {
+    target.searchParams.set('sync_scanned', String(result.scanned));
+  }
+
+  if (result.upserted !== undefined) {
+    target.searchParams.set('sync_upserted', String(result.upserted));
+  }
+
+  if (result.failed !== undefined) {
+    target.searchParams.set('sync_failed', String(result.failed));
   }
 
   return `${target.pathname}${target.search}`;

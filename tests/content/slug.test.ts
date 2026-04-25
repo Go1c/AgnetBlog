@@ -49,4 +49,12 @@ describe('slug normalization', () => {
       slug: 'docs/platform/index',
     });
   });
+
+  it('preserves Chinese path segments when deriving slugs', () => {
+    expect(normalizeSlugPath('文章/我的 第一篇.md')).toBe('文章/我的-第一篇.md');
+    expect(normalizeSlug(undefined, 'notes/我的笔记.md')).toEqual({
+      success: true,
+      slug: 'notes/我的笔记',
+    });
+  });
 });

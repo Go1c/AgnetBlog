@@ -51,9 +51,12 @@ export default async function AdminContentPage({ searchParams }: AdminContentPag
   const error = getSingleParam(params.error);
   const job = getSingleParam(params.job);
   const syncError = getSingleParam(params.sync_error);
+  const syncFailed = getSingleParam(params.sync_failed);
   const syncJob = getSingleParam(params.sync_job);
   const syncMode = getSingleParam(params.sync_mode);
+  const syncScanned = getSingleParam(params.sync_scanned);
   const syncStatus = getSingleParam(params.sync_status);
+  const syncUpserted = getSingleParam(params.sync_upserted);
   const filters = parseFilters(params);
   const allItems = await listContentItems({
     orderBy: [{ updatedAt: 'desc' }, { syncedAt: 'desc' }],
@@ -97,6 +100,9 @@ export default async function AdminContentPage({ searchParams }: AdminContentPag
         <div className="mt-4 rounded-md border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-medium text-teal-900">
           手动同步已执行：{formatStatus(syncStatus)}
           {syncMode ? `，模式 ${formatStatus(syncMode)}` : ''}
+          {syncScanned ? `，扫描 ${syncScanned} 个文件` : ''}
+          {syncUpserted ? `，写入 ${syncUpserted} 个` : ''}
+          {syncFailed ? `，失败 ${syncFailed} 个` : ''}
           {syncJob ? `，任务 ${syncJob}。` : '。'}
         </div>
       ) : null}

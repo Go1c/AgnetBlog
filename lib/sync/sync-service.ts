@@ -9,6 +9,7 @@ import { compareCommits, fetchFileContent, listRepoTree } from '@/lib/github/cli
 import { ContentType, SyncStatus, Visibility } from '@/lib/generated/prisma/client';
 import type { Prisma } from '@/lib/generated/prisma/client';
 import {
+  SYNC_DEFAULT_DIRECTORY_POLICIES,
   SYNC_SOURCE_ROOTS,
   type IncrementalSyncInput,
   type ReconcileSyncInput,
@@ -18,6 +19,14 @@ import {
 
 const INLINE_QUEUE_MESSAGE = 'No background queue is configured; sync executed inline in the request.';
 const ZERO_COMMIT = /^0{40}$/;
+const IGNORED_MARKDOWN_PATH_SEGMENTS = new Set([
+  '.git',
+  '.github',
+  '.next',
+  '.source',
+  '.worktrees',
+  'node_modules',
+]);
 
 type MarkdownFile = {
   path: string;
@@ -278,13 +287,6 @@ export async function deleteMissingRepositoryContent(
   presentPaths: Set<string>,
 ): Promise<SyncFileResult[]> {
   const indexedItems = await db.contentItem.findMany({
-    where: {
-      OR: Object.values(SYNC_SOURCE_ROOTS).map((root) => ({
-        sourcePath: {
-          startsWith: `${root}/`,
-        },
-      })),
-    },
     select: {
       sourcePath: true,
     },
@@ -353,9 +355,12 @@ export function buildRunResult(
 }
 
 export function isMarkdownPath(path: string): boolean {
+  const normalized = path.replace(/\\/g, '/').replace(/^\/+/, '');
+  const segments = normalized.split('/').filter(Boolean);
+
   return (
-    (path.endsWith('.md') || path.endsWith('.mdx')) &&
-    Object.values(SYNC_SOURCE_ROOTS).some((root) => path === root || path.startsWith(`${root}/`))
+    (normalized.endsWith('.md') || normalized.endsWith('.mdx')) &&
+    segments.every((segment) => !IGNORED_MARKDOWN_PATH_SEGMENTS.has(segment))
   );
 }
 
@@ -373,13 +378,16 @@ async function loadDirectoryPolicies(): Promise<DirectoryPolicyInput[]> {
     },
   });
 
-  return policies.map((policy) => ({
+  const databasePolicies: DirectoryPolicyInput[] = policies.map((policy) => ({
     pathPrefix: policy.path,
     defaults: {
-      contentType: policy.contentType === ContentType.BLOG ? 'blog' : 'docs',
+      contentType:
+        policy.contentType === ContentType.BLOG ? ('blog' as const) : ('docs' as const),
       visibility: policy.defaultVisibility.toLowerCase() as 'private' | 'public' | 'unlisted',
     },
   }));
+
+  return databasePolicies.concat(SYNC_DEFAULT_DIRECTORY_POLICIES);
 }
 
 function toPrismaContentType(contentType: 'blog' | 'docs') {
