@@ -52,6 +52,11 @@ export type GitHubTreeItem = {
   size?: number;
 };
 
+export type GitHubTreeResult = {
+  truncated: boolean;
+  tree: GitHubTreeItem[];
+};
+
 export function getGitHubConfigFromEnv(): GitHubResult<GitHubConfig> {
   const owner = process.env.GITHUB_NOTES_OWNER?.trim();
   const repo = process.env.GITHUB_NOTES_REPO?.trim();
@@ -197,7 +202,7 @@ export async function fetchFileContent(
 export async function listRepoTree(
   ref?: string,
   configResult = getGitHubConfigFromEnv(),
-): Promise<GitHubResult<GitHubTreeItem[]>> {
+): Promise<GitHubResult<GitHubTreeResult>> {
   if (!configResult.ok) {
     return configResult;
   }
@@ -213,19 +218,23 @@ export async function listRepoTree(
   }
 
   const data = response.data as {
+    truncated?: boolean;
     tree?: Array<{ path?: string; type?: string; sha?: string; size?: number }>;
   };
 
   return {
     ok: true,
-    data: (data.tree ?? [])
-      .filter((item) => typeof item.path === 'string' && typeof item.sha === 'string')
-      .map((item) => ({
-        path: item.path as string,
-        type: item.type ?? 'blob',
-        sha: item.sha as string,
-        size: item.size,
-      })),
+    data: {
+      truncated: data.truncated === true,
+      tree: (data.tree ?? [])
+        .filter((item) => typeof item.path === 'string' && typeof item.sha === 'string')
+        .map((item) => ({
+          path: item.path as string,
+          type: item.type ?? 'blob',
+          sha: item.sha as string,
+          size: item.size,
+        })),
+    },
   };
 }
 

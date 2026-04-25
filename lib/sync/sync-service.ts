@@ -119,7 +119,16 @@ export async function runReconciliationSync(input: ReconcileSyncInput): Promise<
       ]);
     }
 
-    const markdownFiles = tree.data.filter(
+    if (tree.data.truncated) {
+      return failJob(
+        input.jobId,
+        'reconcile',
+        input.sourceRef,
+        'GitHub tree response was truncated; reconciliation did not modify missing content.',
+      );
+    }
+
+    const markdownFiles = tree.data.tree.filter(
       (item) => item.type === 'blob' && isMarkdownPath(item.path),
     );
     const results: SyncFileResult[] = [];
@@ -290,12 +299,17 @@ export async function deleteMissingRepositoryContent(
 }
 
 export async function finishJob(jobId: string, result: SyncRunResult): Promise<SyncRunResult> {
+  const firstFailureMessage = result.files.find(
+    (file) => file.operation === 'failed' && file.message,
+  )?.message;
+
   await updateSyncJobStatus(jobId, result.status, {
     finishedAt: new Date(),
     errorMessage:
       result.status === SyncStatus.SUCCESS
         ? null
-        : `${result.failed} file${result.failed === 1 ? '' : 's'} failed during ${result.mode} sync.`,
+        : firstFailureMessage ??
+          `${result.failed} file${result.failed === 1 ? '' : 's'} failed during ${result.mode} sync.`,
     result: result as unknown as Prisma.InputJsonValue,
   });
 
