@@ -50,6 +50,7 @@ export type AiTokenCountAggregateOutputType = {
   id: number
   name: number
   tokenHash: number
+  scopes: number
   createdByAdminId: number
   lastUsedAt: number
   revokedAt: number
@@ -85,6 +86,7 @@ export type AiTokenCountAggregateInputType = {
   id?: true
   name?: true
   tokenHash?: true
+  scopes?: true
   createdByAdminId?: true
   lastUsedAt?: true
   revokedAt?: true
@@ -169,6 +171,7 @@ export type AiTokenGroupByOutputType = {
   id: string
   name: string
   tokenHash: string
+  scopes: string[]
   createdByAdminId: string | null
   lastUsedAt: Date | null
   revokedAt: Date | null
@@ -201,6 +204,7 @@ export type AiTokenWhereInput = {
   id?: Prisma.StringFilter<"AiToken"> | string
   name?: Prisma.StringFilter<"AiToken"> | string
   tokenHash?: Prisma.StringFilter<"AiToken"> | string
+  scopes?: Prisma.StringNullableListFilter<"AiToken">
   createdByAdminId?: Prisma.StringNullableFilter<"AiToken"> | string | null
   lastUsedAt?: Prisma.DateTimeNullableFilter<"AiToken"> | Date | string | null
   revokedAt?: Prisma.DateTimeNullableFilter<"AiToken"> | Date | string | null
@@ -214,6 +218,7 @@ export type AiTokenOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   tokenHash?: Prisma.SortOrder
+  scopes?: Prisma.SortOrder
   createdByAdminId?: Prisma.SortOrderInput | Prisma.SortOrder
   lastUsedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -230,6 +235,7 @@ export type AiTokenWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.AiTokenWhereInput[]
   NOT?: Prisma.AiTokenWhereInput | Prisma.AiTokenWhereInput[]
   name?: Prisma.StringFilter<"AiToken"> | string
+  scopes?: Prisma.StringNullableListFilter<"AiToken">
   createdByAdminId?: Prisma.StringNullableFilter<"AiToken"> | string | null
   lastUsedAt?: Prisma.DateTimeNullableFilter<"AiToken"> | Date | string | null
   revokedAt?: Prisma.DateTimeNullableFilter<"AiToken"> | Date | string | null
@@ -243,6 +249,7 @@ export type AiTokenOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   tokenHash?: Prisma.SortOrder
+  scopes?: Prisma.SortOrder
   createdByAdminId?: Prisma.SortOrderInput | Prisma.SortOrder
   lastUsedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   revokedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -260,6 +267,7 @@ export type AiTokenScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"AiToken"> | string
   name?: Prisma.StringWithAggregatesFilter<"AiToken"> | string
   tokenHash?: Prisma.StringWithAggregatesFilter<"AiToken"> | string
+  scopes?: Prisma.StringNullableListFilter<"AiToken">
   createdByAdminId?: Prisma.StringNullableWithAggregatesFilter<"AiToken"> | string | null
   lastUsedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AiToken"> | Date | string | null
   revokedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AiToken"> | Date | string | null
@@ -271,6 +279,7 @@ export type AiTokenCreateInput = {
   id?: string
   name: string
   tokenHash: string
+  scopes?: Prisma.AiTokenCreatescopesInput | string[]
   lastUsedAt?: Date | string | null
   revokedAt?: Date | string | null
   createdAt?: Date | string
@@ -283,6 +292,7 @@ export type AiTokenUncheckedCreateInput = {
   id?: string
   name: string
   tokenHash: string
+  scopes?: Prisma.AiTokenCreatescopesInput | string[]
   createdByAdminId?: string | null
   lastUsedAt?: Date | string | null
   revokedAt?: Date | string | null
@@ -295,6 +305,7 @@ export type AiTokenUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  scopes?: Prisma.AiTokenUpdatescopesInput | string[]
   lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -307,6 +318,7 @@ export type AiTokenUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  scopes?: Prisma.AiTokenUpdatescopesInput | string[]
   createdByAdminId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -319,6 +331,7 @@ export type AiTokenCreateManyInput = {
   id?: string
   name: string
   tokenHash: string
+  scopes?: Prisma.AiTokenCreatescopesInput | string[]
   createdByAdminId?: string | null
   lastUsedAt?: Date | string | null
   revokedAt?: Date | string | null
@@ -330,6 +343,7 @@ export type AiTokenUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  scopes?: Prisma.AiTokenUpdatescopesInput | string[]
   lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -340,6 +354,7 @@ export type AiTokenUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  scopes?: Prisma.AiTokenUpdatescopesInput | string[]
   createdByAdminId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -357,10 +372,19 @@ export type AiTokenOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type StringNullableListFilter<$PrismaModel = never> = {
+  equals?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel> | null
+  has?: string | Prisma.StringFieldRefInput<$PrismaModel> | null
+  hasEvery?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
+  hasSome?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
+  isEmpty?: boolean
+}
+
 export type AiTokenCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   tokenHash?: Prisma.SortOrder
+  scopes?: Prisma.SortOrder
   createdByAdminId?: Prisma.SortOrder
   lastUsedAt?: Prisma.SortOrder
   revokedAt?: Prisma.SortOrder
@@ -437,6 +461,15 @@ export type AiTokenUncheckedUpdateManyWithoutCreatedByAdminNestedInput = {
   deleteMany?: Prisma.AiTokenScalarWhereInput | Prisma.AiTokenScalarWhereInput[]
 }
 
+export type AiTokenCreatescopesInput = {
+  set: string[]
+}
+
+export type AiTokenUpdatescopesInput = {
+  set?: string[]
+  push?: string | string[]
+}
+
 export type AiTokenCreateNestedOneWithoutAuditLogsInput = {
   create?: Prisma.XOR<Prisma.AiTokenCreateWithoutAuditLogsInput, Prisma.AiTokenUncheckedCreateWithoutAuditLogsInput>
   connectOrCreate?: Prisma.AiTokenCreateOrConnectWithoutAuditLogsInput
@@ -457,6 +490,7 @@ export type AiTokenCreateWithoutCreatedByAdminInput = {
   id?: string
   name: string
   tokenHash: string
+  scopes?: Prisma.AiTokenCreatescopesInput | string[]
   lastUsedAt?: Date | string | null
   revokedAt?: Date | string | null
   createdAt?: Date | string
@@ -468,6 +502,7 @@ export type AiTokenUncheckedCreateWithoutCreatedByAdminInput = {
   id?: string
   name: string
   tokenHash: string
+  scopes?: Prisma.AiTokenCreatescopesInput | string[]
   lastUsedAt?: Date | string | null
   revokedAt?: Date | string | null
   createdAt?: Date | string
@@ -508,6 +543,7 @@ export type AiTokenScalarWhereInput = {
   id?: Prisma.StringFilter<"AiToken"> | string
   name?: Prisma.StringFilter<"AiToken"> | string
   tokenHash?: Prisma.StringFilter<"AiToken"> | string
+  scopes?: Prisma.StringNullableListFilter<"AiToken">
   createdByAdminId?: Prisma.StringNullableFilter<"AiToken"> | string | null
   lastUsedAt?: Prisma.DateTimeNullableFilter<"AiToken"> | Date | string | null
   revokedAt?: Prisma.DateTimeNullableFilter<"AiToken"> | Date | string | null
@@ -519,6 +555,7 @@ export type AiTokenCreateWithoutAuditLogsInput = {
   id?: string
   name: string
   tokenHash: string
+  scopes?: Prisma.AiTokenCreatescopesInput | string[]
   lastUsedAt?: Date | string | null
   revokedAt?: Date | string | null
   createdAt?: Date | string
@@ -530,6 +567,7 @@ export type AiTokenUncheckedCreateWithoutAuditLogsInput = {
   id?: string
   name: string
   tokenHash: string
+  scopes?: Prisma.AiTokenCreatescopesInput | string[]
   createdByAdminId?: string | null
   lastUsedAt?: Date | string | null
   revokedAt?: Date | string | null
@@ -557,6 +595,7 @@ export type AiTokenUpdateWithoutAuditLogsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  scopes?: Prisma.AiTokenUpdatescopesInput | string[]
   lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -568,6 +607,7 @@ export type AiTokenUncheckedUpdateWithoutAuditLogsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  scopes?: Prisma.AiTokenUpdatescopesInput | string[]
   createdByAdminId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -579,6 +619,7 @@ export type AiTokenCreateManyCreatedByAdminInput = {
   id?: string
   name: string
   tokenHash: string
+  scopes?: Prisma.AiTokenCreatescopesInput | string[]
   lastUsedAt?: Date | string | null
   revokedAt?: Date | string | null
   createdAt?: Date | string
@@ -589,6 +630,7 @@ export type AiTokenUpdateWithoutCreatedByAdminInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  scopes?: Prisma.AiTokenUpdatescopesInput | string[]
   lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -600,6 +642,7 @@ export type AiTokenUncheckedUpdateWithoutCreatedByAdminInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  scopes?: Prisma.AiTokenUpdatescopesInput | string[]
   lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -611,6 +654,7 @@ export type AiTokenUncheckedUpdateManyWithoutCreatedByAdminInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   tokenHash?: Prisma.StringFieldUpdateOperationsInput | string
+  scopes?: Prisma.AiTokenUpdatescopesInput | string[]
   lastUsedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   revokedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -652,6 +696,7 @@ export type AiTokenSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   id?: boolean
   name?: boolean
   tokenHash?: boolean
+  scopes?: boolean
   createdByAdminId?: boolean
   lastUsedAt?: boolean
   revokedAt?: boolean
@@ -666,6 +711,7 @@ export type AiTokenSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   id?: boolean
   name?: boolean
   tokenHash?: boolean
+  scopes?: boolean
   createdByAdminId?: boolean
   lastUsedAt?: boolean
   revokedAt?: boolean
@@ -678,6 +724,7 @@ export type AiTokenSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   id?: boolean
   name?: boolean
   tokenHash?: boolean
+  scopes?: boolean
   createdByAdminId?: boolean
   lastUsedAt?: boolean
   revokedAt?: boolean
@@ -690,6 +737,7 @@ export type AiTokenSelectScalar = {
   id?: boolean
   name?: boolean
   tokenHash?: boolean
+  scopes?: boolean
   createdByAdminId?: boolean
   lastUsedAt?: boolean
   revokedAt?: boolean
@@ -697,7 +745,7 @@ export type AiTokenSelectScalar = {
   updatedAt?: boolean
 }
 
-export type AiTokenOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "tokenHash" | "createdByAdminId" | "lastUsedAt" | "revokedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["aiToken"]>
+export type AiTokenOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "tokenHash" | "scopes" | "createdByAdminId" | "lastUsedAt" | "revokedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["aiToken"]>
 export type AiTokenInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   createdByAdmin?: boolean | Prisma.AiToken$createdByAdminArgs<ExtArgs>
   auditLogs?: boolean | Prisma.AiToken$auditLogsArgs<ExtArgs>
@@ -720,6 +768,7 @@ export type $AiTokenPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     id: string
     name: string
     tokenHash: string
+    scopes: string[]
     createdByAdminId: string | null
     lastUsedAt: Date | null
     revokedAt: Date | null
@@ -1153,6 +1202,7 @@ export interface AiTokenFieldRefs {
   readonly id: Prisma.FieldRef<"AiToken", 'String'>
   readonly name: Prisma.FieldRef<"AiToken", 'String'>
   readonly tokenHash: Prisma.FieldRef<"AiToken", 'String'>
+  readonly scopes: Prisma.FieldRef<"AiToken", 'String[]'>
   readonly createdByAdminId: Prisma.FieldRef<"AiToken", 'String'>
   readonly lastUsedAt: Prisma.FieldRef<"AiToken", 'DateTime'>
   readonly revokedAt: Prisma.FieldRef<"AiToken", 'DateTime'>
