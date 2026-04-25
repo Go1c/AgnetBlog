@@ -16,9 +16,9 @@ export type AuditTarget = {
 export type AuditDiffSummary = {
   fields: Array<{
     field: string;
-    before: unknown;
-    after: unknown;
+    changed: true;
   }>;
+  count: number;
 };
 
 export async function recordAuditEvent(input: {
@@ -51,9 +51,15 @@ export async function recordAuditEvent(input: {
         id: input.actor.id,
       },
       target: input.target,
-      diff: input.diff,
+      diff: {
+        count: input.diff.count,
+        fields: input.diff.fields.map((field) => ({
+          field: truncateText(field.field),
+          changed: true,
+        })),
+      },
       timestamp: new Date().toISOString(),
-      ...(input.metadata ?? {}),
+      ...(redactSecrets(input.metadata ?? {}) as Record<string, unknown>),
     }) as Prisma.InputJsonValue,
   });
 }
@@ -90,4 +96,8 @@ function redactSecrets(value: unknown): unknown {
 
 function isSecretKey(key: string) {
   return /(token|secret|password|authorization|cookie|key)/i.test(key);
+}
+
+function truncateText(value: string) {
+  return value.length > 120 ? `${value.slice(0, 120)}...` : value;
 }

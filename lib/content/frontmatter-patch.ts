@@ -1,5 +1,5 @@
-import { ingestContentFiles } from './ingest';
 import { parseFrontmatterBlock, validateFrontmatter } from './frontmatter';
+import { ingestContentFiles } from './ingest';
 import type { ContentPipelineIssue, PublishFrontmatter } from './types';
 
 export const PATCHABLE_FRONTMATTER_FIELDS = [
@@ -41,6 +41,18 @@ export type FrontmatterPatchResult =
       unknownFields?: string[];
     };
 
+type FrontmatterEnvelope = {
+  opening: string;
+  source: string;
+  closingAndBody: string;
+};
+
+type FieldSpan = {
+  key: string;
+  start: number;
+  end: number;
+};
+
 const allowedFields = new Set<string>(PATCHABLE_FRONTMATTER_FIELDS);
 
 export function patchMarkdownFrontmatter(options: {
@@ -81,7 +93,7 @@ export function patchMarkdownFrontmatter(options: {
     };
   }
 
-  const markdown = replaceFrontmatter(options.markdown, serializeFrontmatter(merged));
+  const markdown = patchFrontmatterText(options.markdown, options.patch);
   const ingestValidation = ingestContentFiles([
     {
       path: options.sourcePath,
@@ -110,21 +122,97 @@ export function patchMarkdownFrontmatter(options: {
   };
 }
 
-function replaceFrontmatter(markdown: string, serializedFrontmatter: string) {
-  const replacement = `---\n${serializedFrontmatter}---\n`;
+function patchFrontmatterText(markdown: string, patch: Record<string, unknown>) {
+  const envelope = splitFrontmatter(markdown);
+  const frontmatter = envelope?.source ?? '';
+  const spans = findTopLevelFieldSpans(frontmatter);
+  const replacements = new Map<string, string>();
+  const appended: string[] = [];
 
-  if (/^---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/.test(markdown)) {
-    return markdown.replace(/^---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/, replacement);
+  for (const [key, value] of Object.entries(patch)) {
+    const serialized = serializeYamlEntry(key, value);
+    if (spans.some((span) => span.key === key)) {
+      replacements.set(key, serialized);
+    } else {
+      appended.push(serialized);
+    }
   }
 
-  return `${replacement}${markdown}`;
+  let patched = '';
+  let cursor = 0;
+  for (const span of spans) {
+    const replacement = replacements.get(span.key);
+    if (replacement === undefined) {
+      continue;
+    }
+
+    patched += frontmatter.slice(cursor, span.start);
+    patched += replacement;
+    cursor = span.end;
+  }
+  patched += frontmatter.slice(cursor);
+
+  if (appended.length > 0) {
+    patched = `${trimTrailingBlankLines(patched)}${patched.endsWith('\n') || patched.length === 0 ? '' : '\n'}${appended.join('')}`;
+  }
+
+  if (!envelope) {
+    return `---\n${patched}---\n${markdown}`;
+  }
+
+  return `${envelope.opening}${patched}${envelope.closingAndBody}`;
 }
 
-function serializeFrontmatter(data: Record<string, unknown>) {
-  return Object.entries(data)
-    .filter(([, value]) => value !== undefined)
-    .map(([key, value]) => serializeYamlEntry(key, value))
-    .join('');
+function splitFrontmatter(markdown: string): FrontmatterEnvelope | undefined {
+  const match = markdown.match(/^---(\r?\n)([\s\S]*?)(\r?\n---(?:\r?\n|$))/);
+  if (!match || match.index !== 0) {
+    return undefined;
+  }
+
+  return {
+    opening: `---${match[1]}`,
+    source: match[2] ?? '',
+    closingAndBody: markdown.slice((match[0] ?? '').length - (match[3] ?? '').length),
+  };
+}
+
+function findTopLevelFieldSpans(source: string): FieldSpan[] {
+  const lineStarts = getLineStarts(source);
+  const fields: Array<Omit<FieldSpan, 'end'>> = [];
+
+  for (let index = 0; index < lineStarts.length; index += 1) {
+    const start = lineStarts[index] ?? 0;
+    const next = lineStarts[index + 1] ?? source.length;
+    const line = source.slice(start, next);
+    const match = line.match(/^([A-Za-z][\w-]*):(?:\s|$)/);
+
+    if (match) {
+      fields.push({
+        key: match[1] ?? '',
+        start,
+      });
+    }
+  }
+
+  return fields.map((field, index) => ({
+    ...field,
+    end: fields[index + 1]?.start ?? source.length,
+  }));
+}
+
+function getLineStarts(source: string) {
+  const starts = [0];
+  for (let index = 0; index < source.length; index += 1) {
+    if (source[index] === '\n' && index + 1 < source.length) {
+      starts.push(index + 1);
+    }
+  }
+
+  return starts;
+}
+
+function trimTrailingBlankLines(source: string) {
+  return source.replace(/(?:\r?\n\s*)*$/, '\n');
 }
 
 function serializeYamlEntry(key: string, value: unknown): string {

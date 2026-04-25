@@ -23,6 +23,7 @@ const visibilityOptions = [
 export default async function AdminContentPage({ searchParams }: AdminContentPageProps) {
   const params = (await searchParams) ?? {};
   const updated = getSingleParam(params.updated);
+  const auditFailed = getSingleParam(params.audit_failed);
   const error = getSingleParam(params.error);
   const job = getSingleParam(params.job);
   const items = await listContentItems({
@@ -45,6 +46,13 @@ export default async function AdminContentPage({ searchParams }: AdminContentPag
       {error ? (
         <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
           Writeback failed: {formatStatus(error)}
+        </div>
+      ) : null}
+
+      {auditFailed ? (
+        <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">
+          Metadata synced for {auditFailed}, but audit logging failed
+          {job ? ` after sync job ${job}.` : '.'}
         </div>
       ) : null}
 
