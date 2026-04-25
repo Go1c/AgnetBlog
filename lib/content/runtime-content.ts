@@ -14,7 +14,13 @@ export type RuntimeContentItem = Pick<
 >;
 
 export function runtimeContentUrl(item: Pick<RuntimeContentItem, 'type' | 'slug'>) {
-  return item.type === ContentType.DOCS ? `/docs/${item.slug}` : `/blog/${item.slug}`;
+  const encodedSlug = encodeSlugPath(item.slug);
+
+  return item.type === ContentType.DOCS ? `/docs/${encodedSlug}` : `/blog/${encodedSlug}`;
+}
+
+export function routeSlugSegmentsToContentSlug(segments: string[]) {
+  return segments.map(decodeRouteSegment).join('/');
 }
 
 export function runtimeContentDate(
@@ -45,4 +51,19 @@ export function excerptMarkdown(markdown: string, maxLength = 180) {
   }
 
   return `${text.slice(0, maxLength).trimEnd()}...`;
+}
+
+function encodeSlugPath(slug: string) {
+  return slug
+    .split('/')
+    .map((segment) => encodeURIComponent(segment))
+    .join('/');
+}
+
+function decodeRouteSegment(segment: string) {
+  try {
+    return decodeURIComponent(segment);
+  } catch {
+    return segment;
+  }
 }

@@ -4,6 +4,7 @@ import { DocsBody } from 'fumadocs-ui/layouts/docs/page';
 import { MarkdownRenderer } from '@/components/markdown-renderer';
 import { formatFrontmatterDate } from '@/lib/content/visibility';
 import {
+  routeSlugSegmentsToContentSlug,
   runtimeContentDate,
   runtimeContentDescription,
 } from '@/lib/content/runtime-content';
@@ -20,7 +21,10 @@ type BlogPostPageProps = {
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
   const { slug = [] } = await params;
-  const item = await findReadableContentItemByTypeAndSlug(ContentType.BLOG, slug.join('/'));
+  const item = await findReadableContentItemByTypeAndSlug(
+    ContentType.BLOG,
+    routeSlugSegmentsToContentSlug(slug),
+  );
 
   if (!item) {
     return {};
@@ -34,7 +38,10 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug = [] } = await params;
-  const item = await findReadableContentItemByTypeAndSlug(ContentType.BLOG, slug.join('/'));
+  const item = await findReadableContentItemByTypeAndSlug(
+    ContentType.BLOG,
+    routeSlugSegmentsToContentSlug(slug),
+  );
 
   if (!item) {
     notFound();

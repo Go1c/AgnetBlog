@@ -16,8 +16,10 @@ describe('runtime public blog source', () => {
     const samplePost = read('content/blog/hello-world.mdx');
 
     expect(indexPage).toContain('listPublicContentItems');
+    expect(indexPage).toContain('runtimeContentUrl');
     expect(indexPage).not.toContain("from '@/lib/source'");
     expect(postPage).toContain('findReadableContentItemByTypeAndSlug');
+    expect(postPage).toContain('routeSlugSegmentsToContentSlug');
     expect(postPage).not.toContain("from '@/lib/source'");
     expect(postPage).not.toContain('generateStaticParams');
     expect(samplePost).toContain('published: false');
