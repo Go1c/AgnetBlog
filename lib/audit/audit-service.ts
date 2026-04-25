@@ -32,6 +32,8 @@ export async function recordAuditEvent(input: {
     input.actor.type === ActorType.ADMIN
       ? await findAdminUserId(input.actor.id)
       : undefined;
+  const aiTokenId =
+    input.actor.type === ActorType.AI ? await findAiTokenId(input.actor.id) : undefined;
 
   return createAuditLog({
     actorType: input.actor.type,
@@ -39,6 +41,13 @@ export async function recordAuditEvent(input: {
       ? {
           connect: {
             id: adminUserId,
+          },
+        }
+      : undefined,
+    aiToken: aiTokenId
+      ? {
+          connect: {
+            id: aiTokenId,
           },
         }
       : undefined,
@@ -75,6 +84,19 @@ async function findAdminUserId(actorId: string) {
   });
 
   return admin?.id;
+}
+
+async function findAiTokenId(actorId: string) {
+  const token = await db.aiToken.findUnique({
+    where: {
+      id: actorId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  return token?.id;
 }
 
 function redactSecrets(value: unknown): unknown {

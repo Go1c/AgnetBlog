@@ -1139,6 +1139,7 @@ export const AiTokenScalarFieldEnum = {
   id: 'id',
   name: 'name',
   tokenHash: 'tokenHash',
+  scopes: 'scopes',
   createdByAdminId: 'createdByAdminId',
   lastUsedAt: 'lastUsedAt',
   revokedAt: 'revokedAt',

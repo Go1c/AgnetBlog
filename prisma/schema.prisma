@@ -147,6 +147,7 @@ model AiToken {
   id               String     @id @default(cuid())
   name             String
   tokenHash        String     @unique
+  scopes           String[]   @default([])
   createdByAdminId String?
   lastUsedAt       DateTime?
   revokedAt        DateTime?
