@@ -14,10 +14,12 @@ describe('GitHub-style markdown rendering', () => {
 
 https://example.com`);
 
-    expect(html).toContain('<table>');
+    expect(html).toContain('<div class="markdown-table-wrapper"><table>');
     expect(html).toContain('<input type="checkbox" disabled="" checked="">');
     expect(html).toContain('<del>old copy</del>');
-    expect(html).toContain('<a href="https://example.com">https://example.com</a>');
+    expect(html).toContain(
+      '<a href="https://example.com" target="_blank" rel="noreferrer">https://example.com</a>',
+    );
   });
 
   it('renders GitHub-compatible HTML images and resolves relative attachment paths', () => {

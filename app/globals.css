@@ -25,13 +25,14 @@ a {
 }
 
 .github-markdown {
-  color: #292524;
+  color: var(--color-fd-foreground);
   font-size: 1rem;
   line-height: 1.75;
+  overflow-wrap: break-word;
 }
 
 .github-markdown > * + * {
-  margin-top: 1rem;
+  margin-top: 0;
 }
 
 .github-markdown h1,
@@ -40,37 +41,55 @@ a {
 .github-markdown h4,
 .github-markdown h5,
 .github-markdown h6 {
-  color: #0c0a09;
-  font-weight: 800;
+  color: var(--color-fd-foreground);
   line-height: 1.25;
 }
 
 .github-markdown h1 {
-  font-size: 2rem;
+  margin: 2rem 0 1rem;
+  font-size: 1.875rem;
+  font-weight: 700;
 }
 
 .github-markdown h2 {
-  border-bottom: 1px solid rgba(28, 25, 23, 0.12);
+  margin: 1.75rem 0 0.75rem;
   font-size: 1.5rem;
-  padding-bottom: 0.35rem;
+  font-weight: 600;
 }
 
 .github-markdown h3 {
+  margin: 1.5rem 0 0.75rem;
   font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.github-markdown h1:first-child,
+.github-markdown h2:first-child,
+.github-markdown h3:first-child {
+  margin-top: 0;
+}
+
+.github-markdown p {
+  margin: 0.75rem 0;
+  color: color-mix(in srgb, var(--color-fd-foreground) 90%, transparent);
+  line-height: 1.75;
 }
 
 .github-markdown a {
-  color: #0f766e;
-  font-weight: 650;
+  color: var(--color-fd-primary);
   text-decoration-line: underline;
-  text-decoration-color: rgba(15, 118, 110, 0.3);
+  text-underline-offset: 4px;
+}
+
+.github-markdown a:hover {
+  opacity: 0.8;
 }
 
 .github-markdown blockquote {
-  border-left: 4px solid rgba(15, 118, 110, 0.42);
-  background: rgba(240, 253, 250, 0.65);
-  color: #57534e;
-  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  border-left: 4px solid var(--color-fd-border);
+  color: var(--color-fd-muted-foreground);
+  padding-left: 1rem;
 }
 
 .github-markdown mark {
@@ -83,8 +102,8 @@ a {
 .github-markdown .obsidian-wiki-link,
 .github-markdown .obsidian-tag {
   border-radius: 0.25rem;
-  background: rgba(15, 118, 110, 0.08);
-  color: #0f766e;
+  background: color-mix(in srgb, var(--color-fd-primary) 8%, transparent);
+  color: var(--color-fd-primary);
   font-weight: 650;
 }
 
@@ -101,13 +120,13 @@ a {
   border-left: 4px solid #60a5fa;
   border-radius: 0 0.5rem 0.5rem 0;
   background: #eff6ff;
-  color: #1e3a8a;
+  color: inherit;
   margin: 1rem 0;
   padding: 0.75rem 1rem;
 }
 
 .github-markdown .markdown-callout-title {
-  color: inherit;
+  color: #60a5fa;
   font-weight: 750;
   margin-bottom: 0.35rem;
   text-transform: capitalize;
@@ -127,7 +146,15 @@ a {
 .github-markdown .markdown-callout-todo {
   border-left-color: #60a5fa;
   background: #eff6ff;
-  color: #1e3a8a;
+}
+
+.github-markdown .markdown-callout-info > .markdown-callout-title,
+.github-markdown .markdown-callout-note > .markdown-callout-title,
+.github-markdown .markdown-callout-todo > .markdown-callout-title,
+.github-markdown .markdown-callout-info > summary.markdown-callout-title,
+.github-markdown .markdown-callout-note > summary.markdown-callout-title,
+.github-markdown .markdown-callout-todo > summary.markdown-callout-title {
+  color: #60a5fa;
 }
 
 .github-markdown .markdown-callout-tip,
@@ -135,7 +162,15 @@ a {
 .github-markdown .markdown-callout-important {
   border-left-color: #2dd4bf;
   background: #f0fdfa;
-  color: #115e59;
+}
+
+.github-markdown .markdown-callout-tip > .markdown-callout-title,
+.github-markdown .markdown-callout-hint > .markdown-callout-title,
+.github-markdown .markdown-callout-important > .markdown-callout-title,
+.github-markdown .markdown-callout-tip > summary.markdown-callout-title,
+.github-markdown .markdown-callout-hint > summary.markdown-callout-title,
+.github-markdown .markdown-callout-important > summary.markdown-callout-title {
+  color: #2dd4bf;
 }
 
 .github-markdown .markdown-callout-success,
@@ -143,7 +178,15 @@ a {
 .github-markdown .markdown-callout-done {
   border-left-color: #4ade80;
   background: #f0fdf4;
-  color: #166534;
+}
+
+.github-markdown .markdown-callout-success > .markdown-callout-title,
+.github-markdown .markdown-callout-check > .markdown-callout-title,
+.github-markdown .markdown-callout-done > .markdown-callout-title,
+.github-markdown .markdown-callout-success > summary.markdown-callout-title,
+.github-markdown .markdown-callout-check > summary.markdown-callout-title,
+.github-markdown .markdown-callout-done > summary.markdown-callout-title {
+  color: #4ade80;
 }
 
 .github-markdown .markdown-callout-question,
@@ -151,7 +194,15 @@ a {
 .github-markdown .markdown-callout-faq {
   border-left-color: #facc15;
   background: #fefce8;
-  color: #854d0e;
+}
+
+.github-markdown .markdown-callout-question > .markdown-callout-title,
+.github-markdown .markdown-callout-help > .markdown-callout-title,
+.github-markdown .markdown-callout-faq > .markdown-callout-title,
+.github-markdown .markdown-callout-question > summary.markdown-callout-title,
+.github-markdown .markdown-callout-help > summary.markdown-callout-title,
+.github-markdown .markdown-callout-faq > summary.markdown-callout-title {
+  color: #facc15;
 }
 
 .github-markdown .markdown-callout-warning,
@@ -159,7 +210,15 @@ a {
 .github-markdown .markdown-callout-attention {
   border-left-color: #fb923c;
   background: #fff7ed;
-  color: #9a3412;
+}
+
+.github-markdown .markdown-callout-warning > .markdown-callout-title,
+.github-markdown .markdown-callout-caution > .markdown-callout-title,
+.github-markdown .markdown-callout-attention > .markdown-callout-title,
+.github-markdown .markdown-callout-warning > summary.markdown-callout-title,
+.github-markdown .markdown-callout-caution > summary.markdown-callout-title,
+.github-markdown .markdown-callout-attention > summary.markdown-callout-title {
+  color: #fb923c;
 }
 
 .github-markdown .markdown-callout-failure,
@@ -170,7 +229,21 @@ a {
 .github-markdown .markdown-callout-bug {
   border-left-color: #f87171;
   background: #fef2f2;
-  color: #991b1b;
+}
+
+.github-markdown .markdown-callout-failure > .markdown-callout-title,
+.github-markdown .markdown-callout-fail > .markdown-callout-title,
+.github-markdown .markdown-callout-missing > .markdown-callout-title,
+.github-markdown .markdown-callout-danger > .markdown-callout-title,
+.github-markdown .markdown-callout-error > .markdown-callout-title,
+.github-markdown .markdown-callout-bug > .markdown-callout-title,
+.github-markdown .markdown-callout-failure > summary.markdown-callout-title,
+.github-markdown .markdown-callout-fail > summary.markdown-callout-title,
+.github-markdown .markdown-callout-missing > summary.markdown-callout-title,
+.github-markdown .markdown-callout-danger > summary.markdown-callout-title,
+.github-markdown .markdown-callout-error > summary.markdown-callout-title,
+.github-markdown .markdown-callout-bug > summary.markdown-callout-title {
+  color: #f87171;
 }
 
 .github-markdown .markdown-callout-abstract,
@@ -178,24 +251,43 @@ a {
 .github-markdown .markdown-callout-tldr {
   border-left-color: #22d3ee;
   background: #ecfeff;
-  color: #155e75;
+}
+
+.github-markdown .markdown-callout-abstract > .markdown-callout-title,
+.github-markdown .markdown-callout-summary > .markdown-callout-title,
+.github-markdown .markdown-callout-tldr > .markdown-callout-title,
+.github-markdown .markdown-callout-abstract > summary.markdown-callout-title,
+.github-markdown .markdown-callout-summary > summary.markdown-callout-title,
+.github-markdown .markdown-callout-tldr > summary.markdown-callout-title {
+  color: #22d3ee;
 }
 
 .github-markdown .markdown-callout-example {
   border-left-color: #c084fc;
   background: #faf5ff;
-  color: #6b21a8;
+}
+
+.github-markdown .markdown-callout-example > .markdown-callout-title,
+.github-markdown .markdown-callout-example > summary.markdown-callout-title {
+  color: #c084fc;
 }
 
 .github-markdown .markdown-callout-quote,
 .github-markdown .markdown-callout-cite {
   border-left-color: #a8a29e;
   background: #fafaf9;
-  color: #44403c;
+}
+
+.github-markdown .markdown-callout-quote > .markdown-callout-title,
+.github-markdown .markdown-callout-cite > .markdown-callout-title,
+.github-markdown .markdown-callout-quote > summary.markdown-callout-title,
+.github-markdown .markdown-callout-cite > summary.markdown-callout-title {
+  color: #a8a29e;
 }
 
 .github-markdown ul,
 .github-markdown ol {
+  margin: 0.75rem 0;
   padding-left: 1.5rem;
 }
 
@@ -208,58 +300,88 @@ a {
 }
 
 .github-markdown li + li {
-  margin-top: 0.35rem;
+  margin-top: 0.375rem;
 }
 
 .github-markdown li > input[type='checkbox'] {
   margin-right: 0.5rem;
+  accent-color: var(--color-fd-primary);
   transform: translateY(1px);
 }
 
 .github-markdown code {
   border-radius: 0.25rem;
-  background: rgba(28, 25, 23, 0.08);
-  color: #1c1917;
+  background: var(--color-fd-muted);
+  color: var(--color-fd-foreground);
   font-size: 0.9em;
-  padding: 0.15rem 0.35rem;
+  padding: 0.125rem 0.375rem;
 }
 
 .github-markdown pre {
+  margin: 1rem 0;
   overflow-x: auto;
   border-radius: 0.5rem;
-  background: #0c0a09;
-  color: #f5f5f4;
+  border: 1px solid color-mix(in srgb, var(--color-fd-border) 60%, transparent);
+  background: color-mix(in srgb, var(--color-fd-muted) 40%, transparent);
+  color: var(--color-fd-foreground);
   padding: 1rem;
 }
 
 .github-markdown pre code {
   background: transparent;
   color: inherit;
+  font-size: 0.875rem;
   padding: 0;
 }
 
-.github-markdown table {
-  display: block;
-  width: 100%;
+.github-markdown .markdown-table-wrapper {
+  margin: 1rem 0;
   overflow-x: auto;
+}
+
+.github-markdown table {
+  display: table;
+  width: 100%;
   border-collapse: collapse;
+  background: transparent;
+  color: var(--color-fd-foreground);
+  font-size: 0.875rem;
+}
+
+.github-markdown thead {
+  background: color-mix(in srgb, var(--color-fd-muted) 50%, transparent);
+  color: var(--color-fd-foreground);
+}
+
+.github-markdown tbody,
+.github-markdown tr,
+.github-markdown th,
+.github-markdown td {
+  background: transparent;
+  color: var(--color-fd-foreground);
 }
 
 .github-markdown th,
 .github-markdown td {
-  border: 1px solid rgba(28, 25, 23, 0.14);
-  padding: 0.45rem 0.65rem;
+  border: 1px solid var(--color-fd-border);
+  padding: 0.5rem 0.75rem;
 }
 
 .github-markdown th {
-  background: rgba(245, 245, 244, 0.9);
-  font-weight: 750;
+  font-weight: 600;
+  text-align: left;
+}
+
+.github-markdown td {
+  vertical-align: top;
 }
 
 .github-markdown img {
+  margin: 1rem 0;
   max-width: 100%;
   height: auto;
   border-radius: 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--color-fd-border) 60%, transparent);
 }
 
 .github-markdown video,
@@ -267,7 +389,14 @@ a {
   max-width: 100%;
 }
 
+.github-markdown audio {
+  margin: 1rem 0;
+  width: 100%;
+}
+
 .github-markdown video {
+  margin: 1rem 0;
   width: 100%;
   border-radius: 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--color-fd-border) 60%, transparent);
 }

@@ -89,7 +89,7 @@ const droppedTags = new Set([
 const globalAttributes = new Set(['aria-label', 'dir', 'id', 'lang', 'title']);
 
 const tagAttributes: Record<string, Set<string>> = {
-  a: new Set(['href', 'rel']),
+  a: new Set(['href', 'rel', 'target']),
   audio: new Set(['controls', 'src']),
   code: new Set(['class']),
   details: new Set(['class', 'data-callout', 'open']),
@@ -143,6 +143,7 @@ const calloutTypes = new Set([
   'cite',
 ]);
 const allowedStaticClasses = new Set([
+  'markdown-table-wrapper',
   'obsidian-wiki-link',
   'obsidian-tag',
   'markdown-callout',
@@ -225,6 +226,12 @@ function sanitizeElement(element: Element, options: GitHubMarkdownOptions): Chil
     if (media) {
       return [media];
     }
+
+    enforceReferenceLinkAttributes(element);
+  }
+
+  if (tagName === 'table') {
+    return [wrapTable(element)];
   }
 
   return [element];
@@ -289,7 +296,11 @@ function sanitizeAttribute(
   }
 
   if (attributeName === 'rel') {
-    return { name: attributeName, value: 'nofollow' };
+    return { name: attributeName, value: 'noreferrer' };
+  }
+
+  if (attributeName === 'target') {
+    return value === '_blank' ? { name: attributeName, value } : undefined;
   }
 
   if (attributeName === 'controls' || attributeName === 'open') {
@@ -541,6 +552,15 @@ function transformMediaLink(element: Element, options: GitHubMarkdownOptions) {
   return element;
 }
 
+function enforceReferenceLinkAttributes(element: Element) {
+  setAttribute(element, 'target', '_blank');
+  setAttribute(element, 'rel', 'noreferrer');
+}
+
+function wrapTable(element: Element) {
+  return createElement('div', [{ name: 'class', value: 'markdown-table-wrapper' }], [element]);
+}
+
 function sanitizeClassAttribute(tagName: string, value: string) {
   const classes = value
     .split(/\s+/)
@@ -757,6 +777,17 @@ function escapeHtmlAttribute(value: string) {
 
 function getAttributeValue(element: Element, name: string) {
   return element.attrs.find((attribute) => attribute.name.toLowerCase() === name)?.value;
+}
+
+function setAttribute(element: Element, name: string, value: string) {
+  const existing = element.attrs.find((attribute) => attribute.name.toLowerCase() === name);
+
+  if (existing) {
+    existing.value = value;
+    return;
+  }
+
+  element.attrs.push({ name, value });
 }
 
 function mutateElement(element: Element, tagName: string, attrs: Element['attrs']) {
