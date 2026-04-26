@@ -12,7 +12,7 @@ type GitHubMarkdownRepository = {
   branch: string;
 };
 
-type GitHubMarkdownOptions = {
+export type GitHubMarkdownOptions = {
   repository?: GitHubMarkdownRepository | null;
   sourcePath?: string | null;
 };
@@ -310,7 +310,7 @@ function sanitizeAttribute(
   return { name: attributeName, value };
 }
 
-function transformObsidianSyntax(markdown: string) {
+export function transformObsidianSyntax(markdown: string) {
   if (!markdown) {
     return markdown;
   }
@@ -384,14 +384,14 @@ function transformWikiEmbed(match: string, value: string) {
   }
 
   if (kind === 'video') {
-    return `[${escapeMarkdownText(`Video ${display}`)}](${formatMarkdownDestination(target)})`;
+    return `[${escapeMarkdownText(`🎬 ${display}`)}](${formatMarkdownDestination(target)})`;
   }
 
   if (kind === 'audio') {
-    return `[${escapeMarkdownText(`Audio ${display}`)}](${formatMarkdownDestination(target)})`;
+    return `[${escapeMarkdownText(`🎵 ${display}`)}](${formatMarkdownDestination(target)})`;
   }
 
-  return `[${escapeMarkdownText(`File ${display}`)}](${formatMarkdownDestination(target)})`;
+  return `[${escapeMarkdownText(`📎 ${display}`)}](${formatMarkdownDestination(target)})`;
 }
 
 function rewriteKnownMarkdownImages(markdown: string) {
@@ -586,7 +586,7 @@ function isAllowedClassName(tagName: string, className: string) {
   return className === 'nohighlight' || className === 'no-highlight';
 }
 
-function resolveImageSource(value: string, options: GitHubMarkdownOptions) {
+export function resolveImageSource(value: string, options: GitHubMarkdownOptions) {
   const safeUrl = sanitizeUrl(value, 'image');
   if (!safeUrl) {
     return undefined;
@@ -595,7 +595,7 @@ function resolveImageSource(value: string, options: GitHubMarkdownOptions) {
   return resolveRepositorySource(safeUrl, options);
 }
 
-function resolveMediaSource(value: string, options: GitHubMarkdownOptions) {
+export function resolveMediaSource(value: string, options: GitHubMarkdownOptions) {
   const safeUrl = sanitizeUrl(value, 'image');
   if (!safeUrl) {
     return undefined;
@@ -636,7 +636,7 @@ function splitWikiValue(value: string) {
   return [target, rest[0]] as const;
 }
 
-function getMediaKind(value: string): MediaKind {
+export function getMediaKind(value: string): MediaKind {
   const { path } = splitUrlPathAndSuffix(value);
 
   if (imageExtensionPattern.test(path)) {
