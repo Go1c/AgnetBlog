@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import {
   DocsBody,
@@ -7,8 +8,10 @@ import {
   DocsPage,
   DocsTitle,
 } from 'fumadocs-ui/layouts/docs/page';
+import { CommentSection } from '@/components/comments/comment-section';
 import { getMDXComponents } from '@/components/mdx';
 import { MarkdownRenderer } from '@/components/markdown-renderer';
+import { ShareButton } from '@/components/share/share-button';
 import {
   routeSlugSegmentsToContentSlug,
   runtimeContentDescription,
@@ -18,6 +21,7 @@ import {
   findReadableContentItemByTypeAndSlug,
   listPublicContentItems,
 } from '@/lib/db/content-repository';
+import { listContentShares, ShareAccessMode } from '@/lib/db/share-repository';
 import { ContentType } from '@/lib/generated/prisma/client';
 import { source } from '@/lib/source';
 import { getDescription, isDirectlyReadable } from '@/lib/content/visibility';
@@ -76,13 +80,24 @@ export default async function Page({ params }: DocsPageProps) {
   );
 
   if (runtimeItem) {
+    const [shares, baseUrl] = await Promise.all([
+      listContentShares(runtimeItem.id),
+      getRequestBaseUrl(),
+    ]);
+    const canonicalUrl = `${baseUrl}${runtimeContentUrl(runtimeItem)}`;
+    const shortShareUrl = getActiveLinkShareUrl(shares, baseUrl);
+
     return (
       <DocsPage>
-        <DocsTitle>{runtimeItem.title}</DocsTitle>
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <DocsTitle>{runtimeItem.title}</DocsTitle>
+          <ShareButton shortUrl={shortShareUrl} title={runtimeItem.title} url={canonicalUrl} />
+        </div>
         <DocsDescription>{runtimeContentDescription(runtimeItem)}</DocsDescription>
         <DocsBody>
           <MarkdownRenderer content={runtimeItem.body} sourcePath={runtimeItem.sourcePath} />
           <RuntimeDocsList docs={runtimeDocs.filter((doc) => doc.id !== runtimeItem.id)} />
+          <CommentSection contentItemId={runtimeItem.id} returnTo={runtimeContentUrl(runtimeItem)} />
         </DocsBody>
       </DocsPage>
     );
@@ -95,21 +110,56 @@ export default async function Page({ params }: DocsPageProps) {
   }
 
   const MDX = page.data.body;
+  const baseUrl = await getRequestBaseUrl();
 
   return (
     <DocsPage toc={page.data.toc} full={page.data.full}>
-      <DocsTitle>{page.data.title}</DocsTitle>
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <DocsTitle>{page.data.title}</DocsTitle>
+        <ShareButton title={page.data.title} url={`${baseUrl}${page.url}`} />
+      </div>
       <DocsDescription>{getDescription(page)}</DocsDescription>
       <DocsBody>
         <MDX components={getMDXComponents()} />
         <RuntimeDocsList docs={runtimeDocs} />
+        <CommentSection
+          returnTo={page.url}
+          targetKey={staticDocsCommentTargetKey(routeSegmentsToDocsSlug(slug))}
+        />
       </DocsBody>
     </DocsPage>
   );
 }
 
+async function getRequestBaseUrl() {
+  const requestHeaders = await headers();
+  const host = requestHeaders.get('x-forwarded-host') ?? requestHeaders.get('host');
+  const protocol = requestHeaders.get('x-forwarded-proto') ?? 'http';
+
+  if (host) {
+    return `${protocol}://${host}`;
+  }
+
+  return process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+}
+
+function getActiveLinkShareUrl(
+  shares: Awaited<ReturnType<typeof listContentShares>>,
+  baseUrl: string,
+) {
+  const share = shares.find(
+    (candidate) => !candidate.revokedAt && candidate.accessMode === ShareAccessMode.LINK,
+  );
+
+  return share ? `${baseUrl}/s/${encodeURIComponent(share.token)}` : null;
+}
+
 function routeSegmentsToDocsSlug(slug: string[]) {
   return slug.length === 0 ? 'index' : routeSlugSegmentsToContentSlug(slug);
+}
+
+function staticDocsCommentTargetKey(slug: string) {
+  return `docs:${slug}`;
 }
 
 function RuntimeDocsList({ docs }: { docs: RuntimeDoc[] }) {

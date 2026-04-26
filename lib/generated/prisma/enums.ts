@@ -54,3 +54,27 @@ export const ActorType = {
 } as const
 
 export type ActorType = (typeof ActorType)[keyof typeof ActorType]
+
+
+export const ShareAccessMode = {
+  LINK: 'LINK',
+  PASSWORD: 'PASSWORD'
+} as const
+
+export type ShareAccessMode = (typeof ShareAccessMode)[keyof typeof ShareAccessMode]
+
+
+export const ShareNavigationScope = {
+  CURRENT_ONLY: 'CURRENT_ONLY',
+  NAVIGABLE: 'NAVIGABLE'
+} as const
+
+export type ShareNavigationScope = (typeof ShareNavigationScope)[keyof typeof ShareNavigationScope]
+
+
+export const CommentStatus = {
+  ACTIVE: 'ACTIVE',
+  DELETED: 'DELETED'
+} as const
+
+export type CommentStatus = (typeof CommentStatus)[keyof typeof CommentStatus]

@@ -54,6 +54,8 @@ export const ModelName = {
   AdminUser: 'AdminUser',
   DirectoryPolicy: 'DirectoryPolicy',
   ContentItem: 'ContentItem',
+  ContentShare: 'ContentShare',
+  ContentComment: 'ContentComment',
   ContentAsset: 'ContentAsset',
   DocsNavNode: 'DocsNavNode',
   SyncJob: 'SyncJob',
@@ -122,6 +124,41 @@ export const ContentItemScalarFieldEnum = {
 } as const
 
 export type ContentItemScalarFieldEnum = (typeof ContentItemScalarFieldEnum)[keyof typeof ContentItemScalarFieldEnum]
+
+
+export const ContentShareScalarFieldEnum = {
+  id: 'id',
+  contentItemId: 'contentItemId',
+  token: 'token',
+  accessMode: 'accessMode',
+  navigationScope: 'navigationScope',
+  passwordHash: 'passwordHash',
+  passwordSalt: 'passwordSalt',
+  createdByLogin: 'createdByLogin',
+  lastAccessedAt: 'lastAccessedAt',
+  revokedAt: 'revokedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ContentShareScalarFieldEnum = (typeof ContentShareScalarFieldEnum)[keyof typeof ContentShareScalarFieldEnum]
+
+
+export const ContentCommentScalarFieldEnum = {
+  id: 'id',
+  contentItemId: 'contentItemId',
+  targetKey: 'targetKey',
+  parentId: 'parentId',
+  displayName: 'displayName',
+  body: 'body',
+  status: 'status',
+  deletedAt: 'deletedAt',
+  deletedByAdminLogin: 'deletedByAdminLogin',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ContentCommentScalarFieldEnum = (typeof ContentCommentScalarFieldEnum)[keyof typeof ContentCommentScalarFieldEnum]
 
 
 export const ContentAssetScalarFieldEnum = {

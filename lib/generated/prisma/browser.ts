@@ -33,6 +33,16 @@ export type DirectoryPolicy = Prisma.DirectoryPolicyModel
  */
 export type ContentItem = Prisma.ContentItemModel
 /**
+ * Model ContentShare
+ * 
+ */
+export type ContentShare = Prisma.ContentShareModel
+/**
+ * Model ContentComment
+ * 
+ */
+export type ContentComment = Prisma.ContentCommentModel
+/**
  * Model ContentAsset
  * 
  */

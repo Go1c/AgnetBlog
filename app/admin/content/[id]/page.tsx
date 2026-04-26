@@ -1,8 +1,11 @@
 import Link from 'next/link';
+import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 
+import { AdminSharePanel } from '@/components/share/admin-share-panel';
 import { MarkdownRenderer } from '@/components/markdown-renderer';
 import { findContentItemById } from '@/lib/db/content-repository';
+import { listContentShares } from '@/lib/db/share-repository';
 import { ContentType, Visibility } from '@/lib/generated/prisma/client';
 
 export const dynamic = 'force-dynamic';
@@ -46,6 +49,10 @@ export default async function AdminContentDetailPage({
     notFound();
   }
 
+  const [shares, baseUrl] = await Promise.all([
+    listContentShares(item.id),
+    getRequestBaseUrl(),
+  ]);
   const updated = getSingleParam(query.updated);
   const auditFailed = getSingleParam(query.audit_failed);
   const error = getSingleParam(query.error);
@@ -101,110 +108,119 @@ export default async function AdminContentDetailPage({
       </section>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-        <section className="rounded-lg border border-stone-900/10 bg-white p-6 shadow-sm">
-          <h3 className="text-lg font-bold text-stone-950">权限与发布</h3>
-          <form
-            action={`/api/admin/content/${encodeURIComponent(item.id)}/metadata`}
-            className="mt-5 space-y-5"
-            method="post"
-          >
-            <input name="returnTo" type="hidden" value={returnTo} />
-            <div className="grid gap-4 md:grid-cols-2">
-              <label className="text-sm font-medium text-stone-700">
-                标题
-                <input
-                  className="mt-1 w-full rounded-md border border-stone-900/15 bg-white px-3 py-2 text-sm text-stone-900"
-                  defaultValue={item.title}
-                  name="title"
-                  required
-                />
-              </label>
-              <label className="text-sm font-medium text-stone-700">
-                Slug
-                <input
-                  className="mt-1 w-full rounded-md border border-stone-900/15 bg-white px-3 py-2 text-sm text-stone-900"
-                  defaultValue={item.slug}
-                  name="slug"
-                  required
-                />
-              </label>
-              <label className="text-sm font-medium text-stone-700">
-                可见性
-                <select
-                  className="mt-1 w-full rounded-md border border-stone-900/15 bg-white px-3 py-2 text-sm text-stone-900"
-                  defaultValue={toFrontmatterVisibility(item.visibility)}
-                  name="visibility"
-                >
-                  {visibilityOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="text-sm font-medium text-stone-700">
-                发布状态
-                <select
-                  className="mt-1 w-full rounded-md border border-stone-900/15 bg-white px-3 py-2 text-sm text-stone-900"
-                  defaultValue={item.published ? 'true' : 'false'}
-                  name="published"
-                >
-                  {publishedOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="text-sm font-medium text-stone-700">
-                类型
-                <select
-                  className="mt-1 w-full rounded-md border border-stone-900/15 bg-white px-3 py-2 text-sm text-stone-900"
-                  defaultValue={toFrontmatterContentType(item.type)}
-                  name="contentType"
-                >
-                  {contentTypeOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="text-sm font-medium text-stone-700">
-                标签
-                <input
-                  className="mt-1 w-full rounded-md border border-stone-900/15 bg-white px-3 py-2 text-sm text-stone-900"
-                  defaultValue={item.tags.join(', ')}
-                  name="tags"
-                  placeholder="多个标签用英文逗号分隔"
-                />
-              </label>
-              <label className="text-sm font-medium text-stone-700">
-                发布日期
-                <input
-                  className="mt-1 w-full rounded-md border border-stone-900/15 bg-white px-3 py-2 text-sm text-stone-900"
-                  defaultValue={formatDateInput(item.publishedAt)}
-                  name="date"
-                  type="date"
-                />
-              </label>
-              <label className="text-sm font-medium text-stone-700 md:col-span-2">
-                摘要
-                <textarea
-                  className="mt-1 min-h-24 w-full rounded-md border border-stone-900/15 bg-white px-3 py-2 text-sm leading-6 text-stone-900"
-                  defaultValue={item.description ?? ''}
-                  name="summary"
-                />
-              </label>
-            </div>
-            <button
-              className="rounded-md bg-stone-950 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-800"
-              type="submit"
+        <div className="space-y-6">
+          <section className="rounded-lg border border-stone-900/10 bg-white p-6 shadow-sm">
+            <h3 className="text-lg font-bold text-stone-950">权限与发布</h3>
+            <form
+              action={`/api/admin/content/${encodeURIComponent(item.id)}/metadata`}
+              className="mt-5 space-y-5"
+              method="post"
             >
-              保存权限与元数据
-            </button>
-          </form>
-        </section>
+              <input name="returnTo" type="hidden" value={returnTo} />
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="text-sm font-medium text-stone-700">
+                  标题
+                  <input
+                    className="mt-1 w-full rounded-md border border-stone-900/15 bg-white px-3 py-2 text-sm text-stone-900"
+                    defaultValue={item.title}
+                    name="title"
+                    required
+                  />
+                </label>
+                <label className="text-sm font-medium text-stone-700">
+                  Slug
+                  <input
+                    className="mt-1 w-full rounded-md border border-stone-900/15 bg-white px-3 py-2 text-sm text-stone-900"
+                    defaultValue={item.slug}
+                    name="slug"
+                    required
+                  />
+                </label>
+                <label className="text-sm font-medium text-stone-700">
+                  可见性
+                  <select
+                    className="mt-1 w-full rounded-md border border-stone-900/15 bg-white px-3 py-2 text-sm text-stone-900"
+                    defaultValue={toFrontmatterVisibility(item.visibility)}
+                    name="visibility"
+                  >
+                    {visibilityOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="text-sm font-medium text-stone-700">
+                  发布状态
+                  <select
+                    className="mt-1 w-full rounded-md border border-stone-900/15 bg-white px-3 py-2 text-sm text-stone-900"
+                    defaultValue={item.published ? 'true' : 'false'}
+                    name="published"
+                  >
+                    {publishedOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="text-sm font-medium text-stone-700">
+                  类型
+                  <select
+                    className="mt-1 w-full rounded-md border border-stone-900/15 bg-white px-3 py-2 text-sm text-stone-900"
+                    defaultValue={toFrontmatterContentType(item.type)}
+                    name="contentType"
+                  >
+                    {contentTypeOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="text-sm font-medium text-stone-700">
+                  标签
+                  <input
+                    className="mt-1 w-full rounded-md border border-stone-900/15 bg-white px-3 py-2 text-sm text-stone-900"
+                    defaultValue={item.tags.join(', ')}
+                    name="tags"
+                    placeholder="多个标签用英文逗号分隔"
+                  />
+                </label>
+                <label className="text-sm font-medium text-stone-700">
+                  发布日期
+                  <input
+                    className="mt-1 w-full rounded-md border border-stone-900/15 bg-white px-3 py-2 text-sm text-stone-900"
+                    defaultValue={formatDateInput(item.publishedAt)}
+                    name="date"
+                    type="date"
+                  />
+                </label>
+                <label className="text-sm font-medium text-stone-700 md:col-span-2">
+                  摘要
+                  <textarea
+                    className="mt-1 min-h-24 w-full rounded-md border border-stone-900/15 bg-white px-3 py-2 text-sm leading-6 text-stone-900"
+                    defaultValue={item.description ?? ''}
+                    name="summary"
+                  />
+                </label>
+              </div>
+              <button
+                className="rounded-md bg-stone-950 px-4 py-2 text-sm font-semibold text-white hover:bg-stone-800"
+                type="submit"
+              >
+                保存权限与元数据
+              </button>
+            </form>
+          </section>
+
+          <AdminSharePanel
+            baseUrl={baseUrl}
+            contentId={item.id}
+            shares={shares}
+            title={item.title}
+          />
+        </div>
 
         <aside className="rounded-lg border border-stone-900/10 bg-white p-6 shadow-sm">
           <h3 className="text-lg font-bold text-stone-950">来源与同步</h3>
@@ -296,6 +312,18 @@ function getSingleParam(value: string | string[] | undefined) {
 
 function formatStatus(value: string) {
   return value.replace(/_/g, ' ');
+}
+
+async function getRequestBaseUrl() {
+  const requestHeaders = await headers();
+  const host = requestHeaders.get('x-forwarded-host') ?? requestHeaders.get('host');
+  const protocol = requestHeaders.get('x-forwarded-proto') ?? 'http';
+
+  if (host) {
+    return `${protocol}://${host}`;
+  }
+
+  return process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 }
 
 function formatDateInput(value: Date | null | undefined) {

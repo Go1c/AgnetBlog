@@ -259,7 +259,9 @@ export type ContentItemWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"ContentItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ContentItem"> | Date | string
   assets?: Prisma.ContentAssetListRelationFilter
+  comments?: Prisma.ContentCommentListRelationFilter
   docsNavNodes?: Prisma.DocsNavNodeListRelationFilter
+  shares?: Prisma.ContentShareListRelationFilter
 }
 
 export type ContentItemOrderByWithRelationInput = {
@@ -279,7 +281,9 @@ export type ContentItemOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   assets?: Prisma.ContentAssetOrderByRelationAggregateInput
+  comments?: Prisma.ContentCommentOrderByRelationAggregateInput
   docsNavNodes?: Prisma.DocsNavNodeOrderByRelationAggregateInput
+  shares?: Prisma.ContentShareOrderByRelationAggregateInput
 }
 
 export type ContentItemWhereUniqueInput = Prisma.AtLeast<{
@@ -303,7 +307,9 @@ export type ContentItemWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"ContentItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ContentItem"> | Date | string
   assets?: Prisma.ContentAssetListRelationFilter
+  comments?: Prisma.ContentCommentListRelationFilter
   docsNavNodes?: Prisma.DocsNavNodeListRelationFilter
+  shares?: Prisma.ContentShareListRelationFilter
 }, "id" | "sourcePath" | "type_slug">
 
 export type ContentItemOrderByWithAggregationInput = {
@@ -365,7 +371,9 @@ export type ContentItemCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   assets?: Prisma.ContentAssetCreateNestedManyWithoutContentItemInput
+  comments?: Prisma.ContentCommentCreateNestedManyWithoutContentItemInput
   docsNavNodes?: Prisma.DocsNavNodeCreateNestedManyWithoutContentItemInput
+  shares?: Prisma.ContentShareCreateNestedManyWithoutContentItemInput
 }
 
 export type ContentItemUncheckedCreateInput = {
@@ -385,7 +393,9 @@ export type ContentItemUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   assets?: Prisma.ContentAssetUncheckedCreateNestedManyWithoutContentItemInput
+  comments?: Prisma.ContentCommentUncheckedCreateNestedManyWithoutContentItemInput
   docsNavNodes?: Prisma.DocsNavNodeUncheckedCreateNestedManyWithoutContentItemInput
+  shares?: Prisma.ContentShareUncheckedCreateNestedManyWithoutContentItemInput
 }
 
 export type ContentItemUpdateInput = {
@@ -405,7 +415,9 @@ export type ContentItemUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assets?: Prisma.ContentAssetUpdateManyWithoutContentItemNestedInput
+  comments?: Prisma.ContentCommentUpdateManyWithoutContentItemNestedInput
   docsNavNodes?: Prisma.DocsNavNodeUpdateManyWithoutContentItemNestedInput
+  shares?: Prisma.ContentShareUpdateManyWithoutContentItemNestedInput
 }
 
 export type ContentItemUncheckedUpdateInput = {
@@ -425,7 +437,9 @@ export type ContentItemUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assets?: Prisma.ContentAssetUncheckedUpdateManyWithoutContentItemNestedInput
+  comments?: Prisma.ContentCommentUncheckedUpdateManyWithoutContentItemNestedInput
   docsNavNodes?: Prisma.DocsNavNodeUncheckedUpdateManyWithoutContentItemNestedInput
+  shares?: Prisma.ContentShareUncheckedUpdateManyWithoutContentItemNestedInput
 }
 
 export type ContentItemCreateManyInput = {
@@ -570,6 +584,36 @@ export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
 }
 
+export type ContentItemCreateNestedOneWithoutSharesInput = {
+  create?: Prisma.XOR<Prisma.ContentItemCreateWithoutSharesInput, Prisma.ContentItemUncheckedCreateWithoutSharesInput>
+  connectOrCreate?: Prisma.ContentItemCreateOrConnectWithoutSharesInput
+  connect?: Prisma.ContentItemWhereUniqueInput
+}
+
+export type ContentItemUpdateOneRequiredWithoutSharesNestedInput = {
+  create?: Prisma.XOR<Prisma.ContentItemCreateWithoutSharesInput, Prisma.ContentItemUncheckedCreateWithoutSharesInput>
+  connectOrCreate?: Prisma.ContentItemCreateOrConnectWithoutSharesInput
+  upsert?: Prisma.ContentItemUpsertWithoutSharesInput
+  connect?: Prisma.ContentItemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ContentItemUpdateToOneWithWhereWithoutSharesInput, Prisma.ContentItemUpdateWithoutSharesInput>, Prisma.ContentItemUncheckedUpdateWithoutSharesInput>
+}
+
+export type ContentItemCreateNestedOneWithoutCommentsInput = {
+  create?: Prisma.XOR<Prisma.ContentItemCreateWithoutCommentsInput, Prisma.ContentItemUncheckedCreateWithoutCommentsInput>
+  connectOrCreate?: Prisma.ContentItemCreateOrConnectWithoutCommentsInput
+  connect?: Prisma.ContentItemWhereUniqueInput
+}
+
+export type ContentItemUpdateOneWithoutCommentsNestedInput = {
+  create?: Prisma.XOR<Prisma.ContentItemCreateWithoutCommentsInput, Prisma.ContentItemUncheckedCreateWithoutCommentsInput>
+  connectOrCreate?: Prisma.ContentItemCreateOrConnectWithoutCommentsInput
+  upsert?: Prisma.ContentItemUpsertWithoutCommentsInput
+  disconnect?: Prisma.ContentItemWhereInput | boolean
+  delete?: Prisma.ContentItemWhereInput | boolean
+  connect?: Prisma.ContentItemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ContentItemUpdateToOneWithWhereWithoutCommentsInput, Prisma.ContentItemUpdateWithoutCommentsInput>, Prisma.ContentItemUncheckedUpdateWithoutCommentsInput>
+}
+
 export type ContentItemCreateNestedOneWithoutAssetsInput = {
   create?: Prisma.XOR<Prisma.ContentItemCreateWithoutAssetsInput, Prisma.ContentItemUncheckedCreateWithoutAssetsInput>
   connectOrCreate?: Prisma.ContentItemCreateOrConnectWithoutAssetsInput
@@ -600,6 +644,206 @@ export type ContentItemUpdateOneWithoutDocsNavNodesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ContentItemUpdateToOneWithWhereWithoutDocsNavNodesInput, Prisma.ContentItemUpdateWithoutDocsNavNodesInput>, Prisma.ContentItemUncheckedUpdateWithoutDocsNavNodesInput>
 }
 
+export type ContentItemCreateWithoutSharesInput = {
+  id?: string
+  type: $Enums.ContentType
+  slug: string
+  title: string
+  description?: string | null
+  body?: string | null
+  tags?: Prisma.ContentItemCreatetagsInput | string[]
+  sourcePath: string
+  sourceHash?: string | null
+  visibility?: $Enums.Visibility
+  published?: boolean
+  publishedAt?: Date | string | null
+  syncedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assets?: Prisma.ContentAssetCreateNestedManyWithoutContentItemInput
+  comments?: Prisma.ContentCommentCreateNestedManyWithoutContentItemInput
+  docsNavNodes?: Prisma.DocsNavNodeCreateNestedManyWithoutContentItemInput
+}
+
+export type ContentItemUncheckedCreateWithoutSharesInput = {
+  id?: string
+  type: $Enums.ContentType
+  slug: string
+  title: string
+  description?: string | null
+  body?: string | null
+  tags?: Prisma.ContentItemCreatetagsInput | string[]
+  sourcePath: string
+  sourceHash?: string | null
+  visibility?: $Enums.Visibility
+  published?: boolean
+  publishedAt?: Date | string | null
+  syncedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assets?: Prisma.ContentAssetUncheckedCreateNestedManyWithoutContentItemInput
+  comments?: Prisma.ContentCommentUncheckedCreateNestedManyWithoutContentItemInput
+  docsNavNodes?: Prisma.DocsNavNodeUncheckedCreateNestedManyWithoutContentItemInput
+}
+
+export type ContentItemCreateOrConnectWithoutSharesInput = {
+  where: Prisma.ContentItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.ContentItemCreateWithoutSharesInput, Prisma.ContentItemUncheckedCreateWithoutSharesInput>
+}
+
+export type ContentItemUpsertWithoutSharesInput = {
+  update: Prisma.XOR<Prisma.ContentItemUpdateWithoutSharesInput, Prisma.ContentItemUncheckedUpdateWithoutSharesInput>
+  create: Prisma.XOR<Prisma.ContentItemCreateWithoutSharesInput, Prisma.ContentItemUncheckedCreateWithoutSharesInput>
+  where?: Prisma.ContentItemWhereInput
+}
+
+export type ContentItemUpdateToOneWithWhereWithoutSharesInput = {
+  where?: Prisma.ContentItemWhereInput
+  data: Prisma.XOR<Prisma.ContentItemUpdateWithoutSharesInput, Prisma.ContentItemUncheckedUpdateWithoutSharesInput>
+}
+
+export type ContentItemUpdateWithoutSharesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ContentItemUpdatetagsInput | string[]
+  sourcePath?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visibility?: Prisma.EnumVisibilityFieldUpdateOperationsInput | $Enums.Visibility
+  published?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  syncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assets?: Prisma.ContentAssetUpdateManyWithoutContentItemNestedInput
+  comments?: Prisma.ContentCommentUpdateManyWithoutContentItemNestedInput
+  docsNavNodes?: Prisma.DocsNavNodeUpdateManyWithoutContentItemNestedInput
+}
+
+export type ContentItemUncheckedUpdateWithoutSharesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ContentItemUpdatetagsInput | string[]
+  sourcePath?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visibility?: Prisma.EnumVisibilityFieldUpdateOperationsInput | $Enums.Visibility
+  published?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  syncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assets?: Prisma.ContentAssetUncheckedUpdateManyWithoutContentItemNestedInput
+  comments?: Prisma.ContentCommentUncheckedUpdateManyWithoutContentItemNestedInput
+  docsNavNodes?: Prisma.DocsNavNodeUncheckedUpdateManyWithoutContentItemNestedInput
+}
+
+export type ContentItemCreateWithoutCommentsInput = {
+  id?: string
+  type: $Enums.ContentType
+  slug: string
+  title: string
+  description?: string | null
+  body?: string | null
+  tags?: Prisma.ContentItemCreatetagsInput | string[]
+  sourcePath: string
+  sourceHash?: string | null
+  visibility?: $Enums.Visibility
+  published?: boolean
+  publishedAt?: Date | string | null
+  syncedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assets?: Prisma.ContentAssetCreateNestedManyWithoutContentItemInput
+  docsNavNodes?: Prisma.DocsNavNodeCreateNestedManyWithoutContentItemInput
+  shares?: Prisma.ContentShareCreateNestedManyWithoutContentItemInput
+}
+
+export type ContentItemUncheckedCreateWithoutCommentsInput = {
+  id?: string
+  type: $Enums.ContentType
+  slug: string
+  title: string
+  description?: string | null
+  body?: string | null
+  tags?: Prisma.ContentItemCreatetagsInput | string[]
+  sourcePath: string
+  sourceHash?: string | null
+  visibility?: $Enums.Visibility
+  published?: boolean
+  publishedAt?: Date | string | null
+  syncedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  assets?: Prisma.ContentAssetUncheckedCreateNestedManyWithoutContentItemInput
+  docsNavNodes?: Prisma.DocsNavNodeUncheckedCreateNestedManyWithoutContentItemInput
+  shares?: Prisma.ContentShareUncheckedCreateNestedManyWithoutContentItemInput
+}
+
+export type ContentItemCreateOrConnectWithoutCommentsInput = {
+  where: Prisma.ContentItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.ContentItemCreateWithoutCommentsInput, Prisma.ContentItemUncheckedCreateWithoutCommentsInput>
+}
+
+export type ContentItemUpsertWithoutCommentsInput = {
+  update: Prisma.XOR<Prisma.ContentItemUpdateWithoutCommentsInput, Prisma.ContentItemUncheckedUpdateWithoutCommentsInput>
+  create: Prisma.XOR<Prisma.ContentItemCreateWithoutCommentsInput, Prisma.ContentItemUncheckedCreateWithoutCommentsInput>
+  where?: Prisma.ContentItemWhereInput
+}
+
+export type ContentItemUpdateToOneWithWhereWithoutCommentsInput = {
+  where?: Prisma.ContentItemWhereInput
+  data: Prisma.XOR<Prisma.ContentItemUpdateWithoutCommentsInput, Prisma.ContentItemUncheckedUpdateWithoutCommentsInput>
+}
+
+export type ContentItemUpdateWithoutCommentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ContentItemUpdatetagsInput | string[]
+  sourcePath?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visibility?: Prisma.EnumVisibilityFieldUpdateOperationsInput | $Enums.Visibility
+  published?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  syncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assets?: Prisma.ContentAssetUpdateManyWithoutContentItemNestedInput
+  docsNavNodes?: Prisma.DocsNavNodeUpdateManyWithoutContentItemNestedInput
+  shares?: Prisma.ContentShareUpdateManyWithoutContentItemNestedInput
+}
+
+export type ContentItemUncheckedUpdateWithoutCommentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumContentTypeFieldUpdateOperationsInput | $Enums.ContentType
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  body?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tags?: Prisma.ContentItemUpdatetagsInput | string[]
+  sourcePath?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  visibility?: Prisma.EnumVisibilityFieldUpdateOperationsInput | $Enums.Visibility
+  published?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  syncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  assets?: Prisma.ContentAssetUncheckedUpdateManyWithoutContentItemNestedInput
+  docsNavNodes?: Prisma.DocsNavNodeUncheckedUpdateManyWithoutContentItemNestedInput
+  shares?: Prisma.ContentShareUncheckedUpdateManyWithoutContentItemNestedInput
+}
+
 export type ContentItemCreateWithoutAssetsInput = {
   id?: string
   type: $Enums.ContentType
@@ -616,7 +860,9 @@ export type ContentItemCreateWithoutAssetsInput = {
   syncedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  comments?: Prisma.ContentCommentCreateNestedManyWithoutContentItemInput
   docsNavNodes?: Prisma.DocsNavNodeCreateNestedManyWithoutContentItemInput
+  shares?: Prisma.ContentShareCreateNestedManyWithoutContentItemInput
 }
 
 export type ContentItemUncheckedCreateWithoutAssetsInput = {
@@ -635,7 +881,9 @@ export type ContentItemUncheckedCreateWithoutAssetsInput = {
   syncedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  comments?: Prisma.ContentCommentUncheckedCreateNestedManyWithoutContentItemInput
   docsNavNodes?: Prisma.DocsNavNodeUncheckedCreateNestedManyWithoutContentItemInput
+  shares?: Prisma.ContentShareUncheckedCreateNestedManyWithoutContentItemInput
 }
 
 export type ContentItemCreateOrConnectWithoutAssetsInput = {
@@ -670,7 +918,9 @@ export type ContentItemUpdateWithoutAssetsInput = {
   syncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  comments?: Prisma.ContentCommentUpdateManyWithoutContentItemNestedInput
   docsNavNodes?: Prisma.DocsNavNodeUpdateManyWithoutContentItemNestedInput
+  shares?: Prisma.ContentShareUpdateManyWithoutContentItemNestedInput
 }
 
 export type ContentItemUncheckedUpdateWithoutAssetsInput = {
@@ -689,7 +939,9 @@ export type ContentItemUncheckedUpdateWithoutAssetsInput = {
   syncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  comments?: Prisma.ContentCommentUncheckedUpdateManyWithoutContentItemNestedInput
   docsNavNodes?: Prisma.DocsNavNodeUncheckedUpdateManyWithoutContentItemNestedInput
+  shares?: Prisma.ContentShareUncheckedUpdateManyWithoutContentItemNestedInput
 }
 
 export type ContentItemCreateWithoutDocsNavNodesInput = {
@@ -709,6 +961,8 @@ export type ContentItemCreateWithoutDocsNavNodesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   assets?: Prisma.ContentAssetCreateNestedManyWithoutContentItemInput
+  comments?: Prisma.ContentCommentCreateNestedManyWithoutContentItemInput
+  shares?: Prisma.ContentShareCreateNestedManyWithoutContentItemInput
 }
 
 export type ContentItemUncheckedCreateWithoutDocsNavNodesInput = {
@@ -728,6 +982,8 @@ export type ContentItemUncheckedCreateWithoutDocsNavNodesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   assets?: Prisma.ContentAssetUncheckedCreateNestedManyWithoutContentItemInput
+  comments?: Prisma.ContentCommentUncheckedCreateNestedManyWithoutContentItemInput
+  shares?: Prisma.ContentShareUncheckedCreateNestedManyWithoutContentItemInput
 }
 
 export type ContentItemCreateOrConnectWithoutDocsNavNodesInput = {
@@ -763,6 +1019,8 @@ export type ContentItemUpdateWithoutDocsNavNodesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assets?: Prisma.ContentAssetUpdateManyWithoutContentItemNestedInput
+  comments?: Prisma.ContentCommentUpdateManyWithoutContentItemNestedInput
+  shares?: Prisma.ContentShareUpdateManyWithoutContentItemNestedInput
 }
 
 export type ContentItemUncheckedUpdateWithoutDocsNavNodesInput = {
@@ -782,6 +1040,8 @@ export type ContentItemUncheckedUpdateWithoutDocsNavNodesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   assets?: Prisma.ContentAssetUncheckedUpdateManyWithoutContentItemNestedInput
+  comments?: Prisma.ContentCommentUncheckedUpdateManyWithoutContentItemNestedInput
+  shares?: Prisma.ContentShareUncheckedUpdateManyWithoutContentItemNestedInput
 }
 
 
@@ -791,12 +1051,16 @@ export type ContentItemUncheckedUpdateWithoutDocsNavNodesInput = {
 
 export type ContentItemCountOutputType = {
   assets: number
+  comments: number
   docsNavNodes: number
+  shares: number
 }
 
 export type ContentItemCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assets?: boolean | ContentItemCountOutputTypeCountAssetsArgs
+  comments?: boolean | ContentItemCountOutputTypeCountCommentsArgs
   docsNavNodes?: boolean | ContentItemCountOutputTypeCountDocsNavNodesArgs
+  shares?: boolean | ContentItemCountOutputTypeCountSharesArgs
 }
 
 /**
@@ -819,8 +1083,22 @@ export type ContentItemCountOutputTypeCountAssetsArgs<ExtArgs extends runtime.Ty
 /**
  * ContentItemCountOutputType without action
  */
+export type ContentItemCountOutputTypeCountCommentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ContentCommentWhereInput
+}
+
+/**
+ * ContentItemCountOutputType without action
+ */
 export type ContentItemCountOutputTypeCountDocsNavNodesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.DocsNavNodeWhereInput
+}
+
+/**
+ * ContentItemCountOutputType without action
+ */
+export type ContentItemCountOutputTypeCountSharesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ContentShareWhereInput
 }
 
 
@@ -841,7 +1119,9 @@ export type ContentItemSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   createdAt?: boolean
   updatedAt?: boolean
   assets?: boolean | Prisma.ContentItem$assetsArgs<ExtArgs>
+  comments?: boolean | Prisma.ContentItem$commentsArgs<ExtArgs>
   docsNavNodes?: boolean | Prisma.ContentItem$docsNavNodesArgs<ExtArgs>
+  shares?: boolean | Prisma.ContentItem$sharesArgs<ExtArgs>
   _count?: boolean | Prisma.ContentItemCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["contentItem"]>
 
@@ -902,7 +1182,9 @@ export type ContentItemSelectScalar = {
 export type ContentItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "type" | "slug" | "title" | "description" | "body" | "tags" | "sourcePath" | "sourceHash" | "visibility" | "published" | "publishedAt" | "syncedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["contentItem"]>
 export type ContentItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assets?: boolean | Prisma.ContentItem$assetsArgs<ExtArgs>
+  comments?: boolean | Prisma.ContentItem$commentsArgs<ExtArgs>
   docsNavNodes?: boolean | Prisma.ContentItem$docsNavNodesArgs<ExtArgs>
+  shares?: boolean | Prisma.ContentItem$sharesArgs<ExtArgs>
   _count?: boolean | Prisma.ContentItemCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ContentItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -912,7 +1194,9 @@ export type $ContentItemPayload<ExtArgs extends runtime.Types.Extensions.Interna
   name: "ContentItem"
   objects: {
     assets: Prisma.$ContentAssetPayload<ExtArgs>[]
+    comments: Prisma.$ContentCommentPayload<ExtArgs>[]
     docsNavNodes: Prisma.$DocsNavNodePayload<ExtArgs>[]
+    shares: Prisma.$ContentSharePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1325,7 +1609,9 @@ readonly fields: ContentItemFieldRefs;
 export interface Prisma__ContentItemClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   assets<T extends Prisma.ContentItem$assetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ContentItem$assetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContentAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  comments<T extends Prisma.ContentItem$commentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ContentItem$commentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContentCommentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   docsNavNodes<T extends Prisma.ContentItem$docsNavNodesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ContentItem$docsNavNodesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DocsNavNodePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  shares<T extends Prisma.ContentItem$sharesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ContentItem$sharesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContentSharePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1787,6 +2073,30 @@ export type ContentItem$assetsArgs<ExtArgs extends runtime.Types.Extensions.Inte
 }
 
 /**
+ * ContentItem.comments
+ */
+export type ContentItem$commentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ContentComment
+   */
+  select?: Prisma.ContentCommentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ContentComment
+   */
+  omit?: Prisma.ContentCommentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ContentCommentInclude<ExtArgs> | null
+  where?: Prisma.ContentCommentWhereInput
+  orderBy?: Prisma.ContentCommentOrderByWithRelationInput | Prisma.ContentCommentOrderByWithRelationInput[]
+  cursor?: Prisma.ContentCommentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ContentCommentScalarFieldEnum | Prisma.ContentCommentScalarFieldEnum[]
+}
+
+/**
  * ContentItem.docsNavNodes
  */
 export type ContentItem$docsNavNodesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1808,6 +2118,30 @@ export type ContentItem$docsNavNodesArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.DocsNavNodeScalarFieldEnum | Prisma.DocsNavNodeScalarFieldEnum[]
+}
+
+/**
+ * ContentItem.shares
+ */
+export type ContentItem$sharesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ContentShare
+   */
+  select?: Prisma.ContentShareSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ContentShare
+   */
+  omit?: Prisma.ContentShareOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ContentShareInclude<ExtArgs> | null
+  where?: Prisma.ContentShareWhereInput
+  orderBy?: Prisma.ContentShareOrderByWithRelationInput | Prisma.ContentShareOrderByWithRelationInput[]
+  cursor?: Prisma.ContentShareWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ContentShareScalarFieldEnum | Prisma.ContentShareScalarFieldEnum[]
 }
 
 /**

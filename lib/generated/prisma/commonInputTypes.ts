@@ -182,6 +182,57 @@ export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
 }
 
+export type EnumShareAccessModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ShareAccessMode | Prisma.EnumShareAccessModeFieldRefInput<$PrismaModel>
+  in?: $Enums.ShareAccessMode[] | Prisma.ListEnumShareAccessModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ShareAccessMode[] | Prisma.ListEnumShareAccessModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumShareAccessModeFilter<$PrismaModel> | $Enums.ShareAccessMode
+}
+
+export type EnumShareNavigationScopeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ShareNavigationScope | Prisma.EnumShareNavigationScopeFieldRefInput<$PrismaModel>
+  in?: $Enums.ShareNavigationScope[] | Prisma.ListEnumShareNavigationScopeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ShareNavigationScope[] | Prisma.ListEnumShareNavigationScopeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumShareNavigationScopeFilter<$PrismaModel> | $Enums.ShareNavigationScope
+}
+
+export type EnumShareAccessModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ShareAccessMode | Prisma.EnumShareAccessModeFieldRefInput<$PrismaModel>
+  in?: $Enums.ShareAccessMode[] | Prisma.ListEnumShareAccessModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ShareAccessMode[] | Prisma.ListEnumShareAccessModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumShareAccessModeWithAggregatesFilter<$PrismaModel> | $Enums.ShareAccessMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumShareAccessModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumShareAccessModeFilter<$PrismaModel>
+}
+
+export type EnumShareNavigationScopeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ShareNavigationScope | Prisma.EnumShareNavigationScopeFieldRefInput<$PrismaModel>
+  in?: $Enums.ShareNavigationScope[] | Prisma.ListEnumShareNavigationScopeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ShareNavigationScope[] | Prisma.ListEnumShareNavigationScopeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumShareNavigationScopeWithAggregatesFilter<$PrismaModel> | $Enums.ShareNavigationScope
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumShareNavigationScopeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumShareNavigationScopeFilter<$PrismaModel>
+}
+
+export type EnumCommentStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.CommentStatus | Prisma.EnumCommentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CommentStatus[] | Prisma.ListEnumCommentStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CommentStatus[] | Prisma.ListEnumCommentStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCommentStatusFilter<$PrismaModel> | $Enums.CommentStatus
+}
+
+export type EnumCommentStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CommentStatus | Prisma.EnumCommentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CommentStatus[] | Prisma.ListEnumCommentStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CommentStatus[] | Prisma.ListEnumCommentStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCommentStatusWithAggregatesFilter<$PrismaModel> | $Enums.CommentStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCommentStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCommentStatusFilter<$PrismaModel>
+}
+
 export type IntNullableFilter<$PrismaModel = never> = {
   equals?: number | Prisma.IntFieldRefInput<$PrismaModel> | null
   in?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel> | null
@@ -517,6 +568,57 @@ export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumShareAccessModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ShareAccessMode | Prisma.EnumShareAccessModeFieldRefInput<$PrismaModel>
+  in?: $Enums.ShareAccessMode[] | Prisma.ListEnumShareAccessModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ShareAccessMode[] | Prisma.ListEnumShareAccessModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumShareAccessModeFilter<$PrismaModel> | $Enums.ShareAccessMode
+}
+
+export type NestedEnumShareNavigationScopeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ShareNavigationScope | Prisma.EnumShareNavigationScopeFieldRefInput<$PrismaModel>
+  in?: $Enums.ShareNavigationScope[] | Prisma.ListEnumShareNavigationScopeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ShareNavigationScope[] | Prisma.ListEnumShareNavigationScopeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumShareNavigationScopeFilter<$PrismaModel> | $Enums.ShareNavigationScope
+}
+
+export type NestedEnumShareAccessModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ShareAccessMode | Prisma.EnumShareAccessModeFieldRefInput<$PrismaModel>
+  in?: $Enums.ShareAccessMode[] | Prisma.ListEnumShareAccessModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ShareAccessMode[] | Prisma.ListEnumShareAccessModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumShareAccessModeWithAggregatesFilter<$PrismaModel> | $Enums.ShareAccessMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumShareAccessModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumShareAccessModeFilter<$PrismaModel>
+}
+
+export type NestedEnumShareNavigationScopeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ShareNavigationScope | Prisma.EnumShareNavigationScopeFieldRefInput<$PrismaModel>
+  in?: $Enums.ShareNavigationScope[] | Prisma.ListEnumShareNavigationScopeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ShareNavigationScope[] | Prisma.ListEnumShareNavigationScopeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumShareNavigationScopeWithAggregatesFilter<$PrismaModel> | $Enums.ShareNavigationScope
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumShareNavigationScopeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumShareNavigationScopeFilter<$PrismaModel>
+}
+
+export type NestedEnumCommentStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.CommentStatus | Prisma.EnumCommentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CommentStatus[] | Prisma.ListEnumCommentStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CommentStatus[] | Prisma.ListEnumCommentStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCommentStatusFilter<$PrismaModel> | $Enums.CommentStatus
+}
+
+export type NestedEnumCommentStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CommentStatus | Prisma.EnumCommentStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CommentStatus[] | Prisma.ListEnumCommentStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CommentStatus[] | Prisma.ListEnumCommentStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCommentStatusWithAggregatesFilter<$PrismaModel> | $Enums.CommentStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCommentStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCommentStatusFilter<$PrismaModel>
 }
 
 export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {

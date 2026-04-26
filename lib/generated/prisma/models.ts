@@ -11,6 +11,8 @@
 export type * from './models/AdminUser'
 export type * from './models/DirectoryPolicy'
 export type * from './models/ContentItem'
+export type * from './models/ContentShare'
+export type * from './models/ContentComment'
 export type * from './models/ContentAsset'
 export type * from './models/DocsNavNode'
 export type * from './models/SyncJob'

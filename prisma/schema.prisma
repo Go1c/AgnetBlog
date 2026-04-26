@@ -39,6 +39,21 @@ enum ActorType {
   SYSTEM
 }
 
+enum ShareAccessMode {
+  LINK
+  PASSWORD
+}
+
+enum ShareNavigationScope {
+  CURRENT_ONLY
+  NAVIGABLE
+}
+
+enum CommentStatus {
+  ACTIVE
+  DELETED
+}
+
 model AdminUser {
   id          String     @id @default(cuid())
   email       String?
@@ -80,13 +95,55 @@ model ContentItem {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   assets       ContentAsset[]
+  comments     ContentComment[]
   docsNavNodes DocsNavNode[]
+  shares       ContentShare[]
 
   @@unique([type, slug])
   @@index([type])
   @@index([visibility])
   @@index([published])
   @@index([sourcePath])
+}
+
+model ContentShare {
+  id              String               @id @default(cuid())
+  contentItemId   String
+  token           String               @unique
+  accessMode      ShareAccessMode      @default(LINK)
+  navigationScope ShareNavigationScope @default(CURRENT_ONLY)
+  passwordHash    String?
+  passwordSalt    String?
+  createdByLogin  String?
+  lastAccessedAt  DateTime?
+  revokedAt       DateTime?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  contentItem     ContentItem          @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+
+  @@index([contentItemId, revokedAt])
+  @@index([token])
+}
+
+model ContentComment {
+  id                  String           @id @default(cuid())
+  contentItemId       String?
+  targetKey           String?
+  parentId            String?
+  displayName         String?
+  body                String
+  status              CommentStatus    @default(ACTIVE)
+  deletedAt           DateTime?
+  deletedByAdminLogin String?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  contentItem         ContentItem?     @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  parent              ContentComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies             ContentComment[] @relation("CommentReplies")
+
+  @@index([contentItemId, status, createdAt])
+  @@index([targetKey, status, createdAt])
+  @@index([parentId])
 }
 
 model ContentAsset {

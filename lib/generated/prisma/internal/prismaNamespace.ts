@@ -387,6 +387,8 @@ export const ModelName = {
   AdminUser: 'AdminUser',
   DirectoryPolicy: 'DirectoryPolicy',
   ContentItem: 'ContentItem',
+  ContentShare: 'ContentShare',
+  ContentComment: 'ContentComment',
   ContentAsset: 'ContentAsset',
   DocsNavNode: 'DocsNavNode',
   SyncJob: 'SyncJob',
@@ -407,7 +409,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "adminUser" | "directoryPolicy" | "contentItem" | "contentAsset" | "docsNavNode" | "syncJob" | "aiToken" | "auditLog"
+    modelProps: "adminUser" | "directoryPolicy" | "contentItem" | "contentShare" | "contentComment" | "contentAsset" | "docsNavNode" | "syncJob" | "aiToken" | "auditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -630,6 +632,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ContentItemCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ContentItemCountAggregateOutputType> | number
+        }
+      }
+    }
+    ContentShare: {
+      payload: Prisma.$ContentSharePayload<ExtArgs>
+      fields: Prisma.ContentShareFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ContentShareFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentSharePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ContentShareFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentSharePayload>
+        }
+        findFirst: {
+          args: Prisma.ContentShareFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentSharePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ContentShareFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentSharePayload>
+        }
+        findMany: {
+          args: Prisma.ContentShareFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentSharePayload>[]
+        }
+        create: {
+          args: Prisma.ContentShareCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentSharePayload>
+        }
+        createMany: {
+          args: Prisma.ContentShareCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ContentShareCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentSharePayload>[]
+        }
+        delete: {
+          args: Prisma.ContentShareDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentSharePayload>
+        }
+        update: {
+          args: Prisma.ContentShareUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentSharePayload>
+        }
+        deleteMany: {
+          args: Prisma.ContentShareDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ContentShareUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ContentShareUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentSharePayload>[]
+        }
+        upsert: {
+          args: Prisma.ContentShareUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentSharePayload>
+        }
+        aggregate: {
+          args: Prisma.ContentShareAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateContentShare>
+        }
+        groupBy: {
+          args: Prisma.ContentShareGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContentShareGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ContentShareCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContentShareCountAggregateOutputType> | number
+        }
+      }
+    }
+    ContentComment: {
+      payload: Prisma.$ContentCommentPayload<ExtArgs>
+      fields: Prisma.ContentCommentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ContentCommentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentCommentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ContentCommentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentCommentPayload>
+        }
+        findFirst: {
+          args: Prisma.ContentCommentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentCommentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ContentCommentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentCommentPayload>
+        }
+        findMany: {
+          args: Prisma.ContentCommentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentCommentPayload>[]
+        }
+        create: {
+          args: Prisma.ContentCommentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentCommentPayload>
+        }
+        createMany: {
+          args: Prisma.ContentCommentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ContentCommentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentCommentPayload>[]
+        }
+        delete: {
+          args: Prisma.ContentCommentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentCommentPayload>
+        }
+        update: {
+          args: Prisma.ContentCommentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentCommentPayload>
+        }
+        deleteMany: {
+          args: Prisma.ContentCommentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ContentCommentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ContentCommentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentCommentPayload>[]
+        }
+        upsert: {
+          args: Prisma.ContentCommentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContentCommentPayload>
+        }
+        aggregate: {
+          args: Prisma.ContentCommentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateContentComment>
+        }
+        groupBy: {
+          args: Prisma.ContentCommentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContentCommentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ContentCommentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ContentCommentCountAggregateOutputType> | number
         }
       }
     }
@@ -1089,6 +1239,41 @@ export const ContentItemScalarFieldEnum = {
 export type ContentItemScalarFieldEnum = (typeof ContentItemScalarFieldEnum)[keyof typeof ContentItemScalarFieldEnum]
 
 
+export const ContentShareScalarFieldEnum = {
+  id: 'id',
+  contentItemId: 'contentItemId',
+  token: 'token',
+  accessMode: 'accessMode',
+  navigationScope: 'navigationScope',
+  passwordHash: 'passwordHash',
+  passwordSalt: 'passwordSalt',
+  createdByLogin: 'createdByLogin',
+  lastAccessedAt: 'lastAccessedAt',
+  revokedAt: 'revokedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ContentShareScalarFieldEnum = (typeof ContentShareScalarFieldEnum)[keyof typeof ContentShareScalarFieldEnum]
+
+
+export const ContentCommentScalarFieldEnum = {
+  id: 'id',
+  contentItemId: 'contentItemId',
+  targetKey: 'targetKey',
+  parentId: 'parentId',
+  displayName: 'displayName',
+  body: 'body',
+  status: 'status',
+  deletedAt: 'deletedAt',
+  deletedByAdminLogin: 'deletedByAdminLogin',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ContentCommentScalarFieldEnum = (typeof ContentCommentScalarFieldEnum)[keyof typeof ContentCommentScalarFieldEnum]
+
+
 export const ContentAssetScalarFieldEnum = {
   id: 'id',
   contentItemId: 'contentItemId',
@@ -1274,6 +1459,48 @@ export type ListEnumVisibilityFieldRefInput<$PrismaModel> = FieldRefInputType<$P
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
+ * Reference to a field of type 'ShareAccessMode'
+ */
+export type EnumShareAccessModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShareAccessMode'>
+    
+
+
+/**
+ * Reference to a field of type 'ShareAccessMode[]'
+ */
+export type ListEnumShareAccessModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShareAccessMode[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ShareNavigationScope'
+ */
+export type EnumShareNavigationScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShareNavigationScope'>
+    
+
+
+/**
+ * Reference to a field of type 'ShareNavigationScope[]'
+ */
+export type ListEnumShareNavigationScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ShareNavigationScope[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CommentStatus'
+ */
+export type EnumCommentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CommentStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'CommentStatus[]'
+ */
+export type ListEnumCommentStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CommentStatus[]'>
     
 
 
@@ -1473,6 +1700,8 @@ export type GlobalOmitConfig = {
   adminUser?: Prisma.AdminUserOmit
   directoryPolicy?: Prisma.DirectoryPolicyOmit
   contentItem?: Prisma.ContentItemOmit
+  contentShare?: Prisma.ContentShareOmit
+  contentComment?: Prisma.ContentCommentOmit
   contentAsset?: Prisma.ContentAssetOmit
   docsNavNode?: Prisma.DocsNavNodeOmit
   syncJob?: Prisma.SyncJobOmit
