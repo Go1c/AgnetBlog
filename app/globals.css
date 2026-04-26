@@ -16,396 +16,209 @@
   --site-ink: #211b16;
   --site-muted: #6d6258;
   --site-accent: #0f766e;
+  --primary: 0 0% 9%;
+}
+
+.dark {
+  --primary: 0 0% 98%;
+}
+
+html[data-accent='green'] {
+  --primary: 142 70% 45%;
+  --color-fd-primary: hsl(var(--primary));
+  --color-fd-primary-foreground: hsl(150 60% 8%);
+  --color-fd-accent: hsl(142 52% 92%);
+  --color-fd-accent-foreground: hsl(150 60% 18%);
+}
+
+html.dark[data-accent='green'] {
+  --primary: 142 70% 62%;
+  --color-fd-primary: hsl(var(--primary));
+  --color-fd-primary-foreground: hsl(150 60% 8%);
+  --color-fd-accent: hsl(150 30% 16%);
+  --color-fd-accent-foreground: hsl(142 70% 80%);
+}
+
+html[data-accent='blue'] {
+  --primary: 224 76% 56%;
+  --color-fd-primary: hsl(var(--primary));
+  --color-fd-primary-foreground: hsl(0 0% 100%);
+  --color-fd-accent: hsl(220 80% 94%);
+  --color-fd-accent-foreground: hsl(224 64% 24%);
+}
+
+html.dark[data-accent='blue'] {
+  --primary: 224 90% 72%;
+  --color-fd-primary: hsl(var(--primary));
+  --color-fd-primary-foreground: hsl(225 45% 8%);
+  --color-fd-accent: hsl(224 30% 18%);
+  --color-fd-accent-foreground: hsl(224 90% 84%);
+}
+
+html[data-accent='sky'] {
+  --primary: 204 85% 58%;
+  --color-fd-primary: hsl(var(--primary));
+  --color-fd-primary-foreground: hsl(204 70% 12%);
+  --color-fd-accent: hsl(204 88% 94%);
+  --color-fd-accent-foreground: hsl(204 75% 24%);
+}
+
+html.dark[data-accent='sky'] {
+  --primary: 204 92% 76%;
+  --color-fd-primary: hsl(var(--primary));
+  --color-fd-primary-foreground: hsl(204 70% 10%);
+  --color-fd-accent: hsl(204 34% 18%);
+  --color-fd-accent-foreground: hsl(204 92% 86%);
+}
+
+html[data-accent='purple'] {
+  --primary: 262 83% 62%;
+  --color-fd-primary: hsl(var(--primary));
+  --color-fd-primary-foreground: hsl(0 0% 100%);
+  --color-fd-accent: hsl(262 75% 94%);
+  --color-fd-accent-foreground: hsl(262 70% 26%);
+}
+
+html.dark[data-accent='purple'] {
+  --primary: 262 90% 78%;
+  --color-fd-primary: hsl(var(--primary));
+  --color-fd-primary-foreground: hsl(262 48% 10%);
+  --color-fd-accent: hsl(262 32% 18%);
+  --color-fd-accent-foreground: hsl(262 90% 86%);
+}
+
+html[data-accent='orange'] {
+  --primary: 25 95% 58%;
+  --color-fd-primary: hsl(var(--primary));
+  --color-fd-primary-foreground: hsl(24 70% 10%);
+  --color-fd-accent: hsl(25 100% 94%);
+  --color-fd-accent-foreground: hsl(24 75% 24%);
+}
+
+html.dark[data-accent='orange'] {
+  --primary: 25 100% 70%;
+  --color-fd-primary: hsl(var(--primary));
+  --color-fd-primary-foreground: hsl(24 70% 10%);
+  --color-fd-accent: hsl(24 32% 17%);
+  --color-fd-accent-foreground: hsl(25 100% 82%);
+}
+
+html[data-accent='rose'] {
+  --primary: 347 86% 62%;
+  --color-fd-primary: hsl(var(--primary));
+  --color-fd-primary-foreground: hsl(0 0% 100%);
+  --color-fd-accent: hsl(347 88% 95%);
+  --color-fd-accent-foreground: hsl(347 76% 26%);
+}
+
+html.dark[data-accent='rose'] {
+  --primary: 347 90% 74%;
+  --color-fd-primary: hsl(var(--primary));
+  --color-fd-primary-foreground: hsl(347 55% 10%);
+  --color-fd-accent: hsl(347 34% 17%);
+  --color-fd-accent-foreground: hsl(347 90% 84%);
+}
+
+html[data-accent='cyan'] {
+  --primary: 174 68% 46%;
+  --color-fd-primary: hsl(var(--primary));
+  --color-fd-primary-foreground: hsl(178 70% 10%);
+  --color-fd-accent: hsl(174 70% 93%);
+  --color-fd-accent-foreground: hsl(178 70% 20%);
+}
+
+html.dark[data-accent='cyan'] {
+  --primary: 174 78% 60%;
+  --color-fd-primary: hsl(var(--primary));
+  --color-fd-primary-foreground: hsl(178 70% 10%);
+  --color-fd-accent: hsl(178 32% 16%);
+  --color-fd-accent-foreground: hsl(174 78% 78%);
 }
 
 html {
-  background: var(--site-bg);
+  min-height: 100%;
+  background-color: var(--color-fd-background) !important;
 }
 
 body {
-  color: var(--site-ink);
-  background:
-    radial-gradient(circle at top left, rgba(15, 118, 110, 0.16), transparent 30rem),
-    linear-gradient(180deg, #fffaf0 0%, var(--site-bg) 48%, #efe4d1 100%);
+  color: var(--color-fd-foreground);
+  min-height: 100vh;
+  background-color: var(--color-fd-background) !important;
+}
+
+.dark html,
+.dark body {
+  color: var(--color-fd-foreground);
+  background-color: var(--color-fd-background) !important;
 }
 
 a {
   text-underline-offset: 4px;
 }
 
-.github-markdown {
-  color: var(--color-fd-foreground);
-  font-size: 1rem;
-  line-height: 1.75;
-  overflow-wrap: break-word;
+.markdown-preview {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.3s ease;
 }
 
-.github-markdown > * + * {
-  margin-top: 0;
+.markdown-preview:hover {
+  scrollbar-color: rgba(128, 128, 128, 0.3) transparent;
 }
 
-.github-markdown h1,
-.github-markdown h2,
-.github-markdown h3,
-.github-markdown h4,
-.github-markdown h5,
-.github-markdown h6 {
-  color: var(--color-fd-foreground);
-  line-height: 1.25;
+.markdown-preview::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
-.github-markdown h1 {
-  margin: 2rem 0 1rem;
-  font-size: 1.875rem;
-  font-weight: 700;
+.markdown-preview::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.github-markdown h2 {
-  margin: 1.75rem 0 0.75rem;
-  font-size: 1.5rem;
-  font-weight: 600;
+.markdown-preview::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 3px;
+  transition: background-color 0.3s ease;
 }
 
-.github-markdown h3 {
-  margin: 1.5rem 0 0.75rem;
-  font-size: 1.25rem;
-  font-weight: 600;
+.markdown-preview:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(128, 128, 128, 0.3);
 }
 
-.github-markdown h1:first-child,
-.github-markdown h2:first-child,
-.github-markdown h3:first-child {
-  margin-top: 0;
+.markdown-preview::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(128, 128, 128, 0.5);
 }
 
-.github-markdown p {
-  margin: 0.75rem 0;
-  color: color-mix(in srgb, var(--color-fd-foreground) 90%, transparent);
-  line-height: 1.75;
+.obsidian-wiki-link {
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.08);
+  padding: 0 4px;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
 }
 
-.github-markdown a {
-  color: var(--color-fd-primary);
-  text-decoration-line: underline;
-  text-underline-offset: 4px;
+.obsidian-wiki-link:hover {
+  background: hsl(var(--primary) / 0.15);
 }
 
-.github-markdown a:hover {
-  opacity: 0.8;
-}
-
-.github-markdown blockquote {
-  margin: 1rem 0;
-  border-left: 4px solid var(--color-fd-border);
-  color: var(--color-fd-muted-foreground);
-  padding-left: 1rem;
-}
-
-.github-markdown mark {
-  border-radius: 0.125rem;
-  background: #fef08a;
-  color: inherit;
-  padding: 0 0.125rem;
-}
-
-.github-markdown .obsidian-wiki-link,
-.github-markdown .obsidian-tag {
-  border-radius: 0.25rem;
-  background: color-mix(in srgb, var(--color-fd-primary) 8%, transparent);
-  color: var(--color-fd-primary);
-  font-weight: 650;
-}
-
-.github-markdown .obsidian-wiki-link {
-  padding: 0 0.25rem;
-}
-
-.github-markdown .obsidian-tag {
-  padding: 0.0625rem 0.375rem;
+.obsidian-tag {
+  color: hsl(var(--primary));
+  background: hsl(var(--primary) / 0.08);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
   white-space: nowrap;
 }
 
-.github-markdown .markdown-callout {
-  border-left: 4px solid #60a5fa;
-  border-radius: 0 0.5rem 0.5rem 0;
-  background: #eff6ff;
-  color: inherit;
-  margin: 1rem 0;
-  padding: 0.75rem 1rem;
+mark {
+  background: #fef08a;
+  padding: 0 2px;
+  border-radius: 2px;
 }
 
-.github-markdown .markdown-callout-title {
-  color: #60a5fa;
-  font-weight: 750;
-  margin-bottom: 0.35rem;
-  text-transform: capitalize;
-}
-
-.github-markdown details.markdown-callout > summary.markdown-callout-title {
-  cursor: pointer;
-  margin-bottom: 0;
-}
-
-.github-markdown details.markdown-callout[open] > summary.markdown-callout-title {
-  margin-bottom: 0.35rem;
-}
-
-.github-markdown .markdown-callout-info,
-.github-markdown .markdown-callout-note,
-.github-markdown .markdown-callout-todo {
-  border-left-color: #60a5fa;
-  background: #eff6ff;
-}
-
-.github-markdown .markdown-callout-info > .markdown-callout-title,
-.github-markdown .markdown-callout-note > .markdown-callout-title,
-.github-markdown .markdown-callout-todo > .markdown-callout-title,
-.github-markdown .markdown-callout-info > summary.markdown-callout-title,
-.github-markdown .markdown-callout-note > summary.markdown-callout-title,
-.github-markdown .markdown-callout-todo > summary.markdown-callout-title {
-  color: #60a5fa;
-}
-
-.github-markdown .markdown-callout-tip,
-.github-markdown .markdown-callout-hint,
-.github-markdown .markdown-callout-important {
-  border-left-color: #2dd4bf;
-  background: #f0fdfa;
-}
-
-.github-markdown .markdown-callout-tip > .markdown-callout-title,
-.github-markdown .markdown-callout-hint > .markdown-callout-title,
-.github-markdown .markdown-callout-important > .markdown-callout-title,
-.github-markdown .markdown-callout-tip > summary.markdown-callout-title,
-.github-markdown .markdown-callout-hint > summary.markdown-callout-title,
-.github-markdown .markdown-callout-important > summary.markdown-callout-title {
-  color: #2dd4bf;
-}
-
-.github-markdown .markdown-callout-success,
-.github-markdown .markdown-callout-check,
-.github-markdown .markdown-callout-done {
-  border-left-color: #4ade80;
-  background: #f0fdf4;
-}
-
-.github-markdown .markdown-callout-success > .markdown-callout-title,
-.github-markdown .markdown-callout-check > .markdown-callout-title,
-.github-markdown .markdown-callout-done > .markdown-callout-title,
-.github-markdown .markdown-callout-success > summary.markdown-callout-title,
-.github-markdown .markdown-callout-check > summary.markdown-callout-title,
-.github-markdown .markdown-callout-done > summary.markdown-callout-title {
-  color: #4ade80;
-}
-
-.github-markdown .markdown-callout-question,
-.github-markdown .markdown-callout-help,
-.github-markdown .markdown-callout-faq {
-  border-left-color: #facc15;
-  background: #fefce8;
-}
-
-.github-markdown .markdown-callout-question > .markdown-callout-title,
-.github-markdown .markdown-callout-help > .markdown-callout-title,
-.github-markdown .markdown-callout-faq > .markdown-callout-title,
-.github-markdown .markdown-callout-question > summary.markdown-callout-title,
-.github-markdown .markdown-callout-help > summary.markdown-callout-title,
-.github-markdown .markdown-callout-faq > summary.markdown-callout-title {
-  color: #facc15;
-}
-
-.github-markdown .markdown-callout-warning,
-.github-markdown .markdown-callout-caution,
-.github-markdown .markdown-callout-attention {
-  border-left-color: #fb923c;
-  background: #fff7ed;
-}
-
-.github-markdown .markdown-callout-warning > .markdown-callout-title,
-.github-markdown .markdown-callout-caution > .markdown-callout-title,
-.github-markdown .markdown-callout-attention > .markdown-callout-title,
-.github-markdown .markdown-callout-warning > summary.markdown-callout-title,
-.github-markdown .markdown-callout-caution > summary.markdown-callout-title,
-.github-markdown .markdown-callout-attention > summary.markdown-callout-title {
-  color: #fb923c;
-}
-
-.github-markdown .markdown-callout-failure,
-.github-markdown .markdown-callout-fail,
-.github-markdown .markdown-callout-missing,
-.github-markdown .markdown-callout-danger,
-.github-markdown .markdown-callout-error,
-.github-markdown .markdown-callout-bug {
-  border-left-color: #f87171;
-  background: #fef2f2;
-}
-
-.github-markdown .markdown-callout-failure > .markdown-callout-title,
-.github-markdown .markdown-callout-fail > .markdown-callout-title,
-.github-markdown .markdown-callout-missing > .markdown-callout-title,
-.github-markdown .markdown-callout-danger > .markdown-callout-title,
-.github-markdown .markdown-callout-error > .markdown-callout-title,
-.github-markdown .markdown-callout-bug > .markdown-callout-title,
-.github-markdown .markdown-callout-failure > summary.markdown-callout-title,
-.github-markdown .markdown-callout-fail > summary.markdown-callout-title,
-.github-markdown .markdown-callout-missing > summary.markdown-callout-title,
-.github-markdown .markdown-callout-danger > summary.markdown-callout-title,
-.github-markdown .markdown-callout-error > summary.markdown-callout-title,
-.github-markdown .markdown-callout-bug > summary.markdown-callout-title {
-  color: #f87171;
-}
-
-.github-markdown .markdown-callout-abstract,
-.github-markdown .markdown-callout-summary,
-.github-markdown .markdown-callout-tldr {
-  border-left-color: #22d3ee;
-  background: #ecfeff;
-}
-
-.github-markdown .markdown-callout-abstract > .markdown-callout-title,
-.github-markdown .markdown-callout-summary > .markdown-callout-title,
-.github-markdown .markdown-callout-tldr > .markdown-callout-title,
-.github-markdown .markdown-callout-abstract > summary.markdown-callout-title,
-.github-markdown .markdown-callout-summary > summary.markdown-callout-title,
-.github-markdown .markdown-callout-tldr > summary.markdown-callout-title {
-  color: #22d3ee;
-}
-
-.github-markdown .markdown-callout-example {
-  border-left-color: #c084fc;
-  background: #faf5ff;
-}
-
-.github-markdown .markdown-callout-example > .markdown-callout-title,
-.github-markdown .markdown-callout-example > summary.markdown-callout-title {
-  color: #c084fc;
-}
-
-.github-markdown .markdown-callout-quote,
-.github-markdown .markdown-callout-cite {
-  border-left-color: #a8a29e;
-  background: #fafaf9;
-}
-
-.github-markdown .markdown-callout-quote > .markdown-callout-title,
-.github-markdown .markdown-callout-cite > .markdown-callout-title,
-.github-markdown .markdown-callout-quote > summary.markdown-callout-title,
-.github-markdown .markdown-callout-cite > summary.markdown-callout-title {
-  color: #a8a29e;
-}
-
-.github-markdown ul,
-.github-markdown ol {
-  margin: 0.75rem 0;
-  padding-left: 1.5rem;
-}
-
-.github-markdown ul {
-  list-style: disc;
-}
-
-.github-markdown ol {
-  list-style: decimal;
-}
-
-.github-markdown li + li {
-  margin-top: 0.375rem;
-}
-
-.github-markdown li > input[type='checkbox'] {
-  margin-right: 0.5rem;
-  accent-color: var(--color-fd-primary);
-  transform: translateY(1px);
-}
-
-.github-markdown code {
-  border-radius: 0.25rem;
-  background: var(--color-fd-muted);
-  color: var(--color-fd-foreground);
-  font-size: 0.9em;
-  padding: 0.125rem 0.375rem;
-}
-
-.github-markdown pre {
-  margin: 1rem 0;
-  overflow-x: auto;
-  border-radius: 0.5rem;
-  border: 1px solid color-mix(in srgb, var(--color-fd-border) 60%, transparent);
-  background: color-mix(in srgb, var(--color-fd-muted) 40%, transparent);
-  color: var(--color-fd-foreground);
-  padding: 1rem;
-}
-
-.github-markdown pre code {
-  background: transparent;
-  color: inherit;
-  font-size: 0.875rem;
-  padding: 0;
-}
-
-.github-markdown .markdown-table-wrapper {
-  margin: 1rem 0;
-  overflow-x: auto;
-}
-
-.github-markdown table {
-  display: table;
-  width: 100%;
-  border-collapse: collapse;
-  background: transparent;
-  color: var(--color-fd-foreground);
-  font-size: 0.875rem;
-}
-
-.github-markdown thead {
-  background: color-mix(in srgb, var(--color-fd-muted) 50%, transparent);
-  color: var(--color-fd-foreground);
-}
-
-.github-markdown tbody,
-.github-markdown tr,
-.github-markdown th,
-.github-markdown td {
-  background: transparent;
-  color: var(--color-fd-foreground);
-}
-
-.github-markdown th,
-.github-markdown td {
-  border: 1px solid var(--color-fd-border);
-  padding: 0.5rem 0.75rem;
-}
-
-.github-markdown th {
-  font-weight: 600;
-  text-align: left;
-}
-
-.github-markdown td {
-  vertical-align: top;
-}
-
-.github-markdown img {
-  margin: 1rem 0;
-  max-width: 100%;
-  height: auto;
-  border-radius: 0.5rem;
-  border: 1px solid color-mix(in srgb, var(--color-fd-border) 60%, transparent);
-}
-
-.github-markdown video,
-.github-markdown audio {
-  max-width: 100%;
-}
-
-.github-markdown audio {
-  margin: 1rem 0;
-  width: 100%;
-}
-
-.github-markdown video {
-  margin: 1rem 0;
-  width: 100%;
-  border-radius: 0.5rem;
-  border: 1px solid color-mix(in srgb, var(--color-fd-border) 60%, transparent);
+.dark mark {
+  background: #854d0e;
+  color: #fef9c3;
 }

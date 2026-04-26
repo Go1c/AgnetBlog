@@ -12,6 +12,7 @@ import { CommentSection } from '@/components/comments/comment-section';
 import { getMDXComponents } from '@/components/mdx';
 import { MarkdownRenderer } from '@/components/markdown-renderer';
 import { ShareButton } from '@/components/share/share-button';
+import { AccentColorSelect } from '@/components/theme/accent-color-select';
 import {
   routeSlugSegmentsToContentSlug,
   runtimeContentDescription,
@@ -91,7 +92,10 @@ export default async function Page({ params }: DocsPageProps) {
       <DocsPage>
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <DocsTitle>{runtimeItem.title}</DocsTitle>
-          <ShareButton shortUrl={shortShareUrl} title={runtimeItem.title} url={canonicalUrl} />
+          <div className="flex flex-wrap items-center gap-2 md:justify-end">
+            <AccentColorSelect />
+            <ShareButton shortUrl={shortShareUrl} title={runtimeItem.title} url={canonicalUrl} />
+          </div>
         </div>
         <DocsDescription>{runtimeContentDescription(runtimeItem)}</DocsDescription>
         <DocsBody>
@@ -116,7 +120,10 @@ export default async function Page({ params }: DocsPageProps) {
     <DocsPage toc={page.data.toc} full={page.data.full}>
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <DocsTitle>{page.data.title}</DocsTitle>
-        <ShareButton title={page.data.title} url={`${baseUrl}${page.url}`} />
+        <div className="flex flex-wrap items-center gap-2 md:justify-end">
+          <AccentColorSelect />
+          <ShareButton title={page.data.title} url={`${baseUrl}${page.url}`} />
+        </div>
       </div>
       <DocsDescription>{getDescription(page)}</DocsDescription>
       <DocsBody>
